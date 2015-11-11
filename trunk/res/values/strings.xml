@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">DRdisSys</string>
+    <string name="hello_world">Hello world!</string>
+	<string name="err_string">急停开关提示信息、错误提示</string>
+	<string name="name_string">错误提示</string>
+	<string name="sex_string">男</string>
+	<string name="age_string">24</string>
+	<string name="id_string">1234567890123</string>
+	<string name="field_trace_string">射野跟踪</string>
+	<string name="send_data_format_error">发送数据格式错误</string>
+	<string name="grid_mateial_al">铝</string>
+	<string name="grid_mateial_carbon">碳</string>
+</resources>
