@@ -3,7 +3,6 @@
 
     <string name="app_name">DRdisSys</string>
     <string name="hello_world">Hello world!</string>
-	<string name="err_string">急停开关提示信息、错误提示</string>
 	<string name="name_string">错误提示</string>
 	<string name="sex_string">男</string>
 	<string name="age_string">24</string>

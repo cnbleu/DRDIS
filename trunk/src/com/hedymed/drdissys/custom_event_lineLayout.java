@@ -11,7 +11,7 @@ import android.widget.LinearLayout;
 public class custom_event_lineLayout extends LinearLayout {
 	int mSlipPointID;
 	float mTouchDownX;
-	boolean mScrolling;
+	boolean mScrolling, mSwitchFlag;
 	int mTouchSlop;
 	MainActivity mAttachActivity;
 	
@@ -27,7 +27,6 @@ public class custom_event_lineLayout extends LinearLayout {
 	}
 
 	public boolean dispatchTouchEvent(MotionEvent ev) {
-		Log.e("wangbo", "TouchEventFather | dispatchTouchEvent --> "  + TouchEventUtil.getTouchAction(ev.getAction()));
 		return super.dispatchTouchEvent(ev);
 	}
 
@@ -36,14 +35,12 @@ public class custom_event_lineLayout extends LinearLayout {
 		// TODO Auto-generated method stub
 		switch(event.getActionMasked()){
 			case MotionEvent.ACTION_DOWN:
-				System.out.println("onInterceptTouchEvent ACTION_DOWN");
 				mTouchDownX = event.getX();
 				mScrolling = false;
+				mSwitchFlag = false;
 				break;
 				
 			case MotionEvent.ACTION_MOVE:
-				System.out.println("onInterceptTouchEvent ACTION_MOVE");
-				
 				if(Math.abs(mTouchDownX - event.getX()) >= mTouchSlop){
 					mScrolling = true;
 				}
@@ -54,8 +51,6 @@ public class custom_event_lineLayout extends LinearLayout {
 				
 			case MotionEvent.ACTION_UP:
 				//如果ACTION_MOVE判断是点击就会进入ACTION_UP，是滚动则不会进入
-				System.out.println("onInterceptTouchEvent ACTION_UP");	
-				
 				//返回false以便子控件接收ACTION_UP事件
 				mScrolling = false; 
 				break;
@@ -69,17 +64,16 @@ public class custom_event_lineLayout extends LinearLayout {
 		// TODO Auto-generated method stub
 		switch(event.getActionMasked()){
 			case MotionEvent.ACTION_DOWN:
-				System.out.println("ACTION_DOWN");				
 				break;
 				
 			case MotionEvent.ACTION_MOVE:
-				System.out.println("ACTION_MOVE");
-//				mAttachActivity.FragmentSlip();
+				if(!mSwitchFlag) {
+					mSwitchFlag = true;
+					mAttachActivity.FragmentSlip();
+				}
 				break;
 				
 			case MotionEvent.ACTION_UP:
-				System.out.println("ACTION_UP");
-				mAttachActivity.FragmentSlip();
 				break;
 				
 			default:

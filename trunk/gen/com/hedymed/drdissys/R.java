@@ -41,6 +41,7 @@ public final class R {
         public static final int name_textview_margin=0x7f070007;
         public static final int spinner_vertical_view_width=0x7f070004;
         public static final int spinner_view_width=0x7f070003;
+        public static final int toast_text_size=0x7f070008;
     }
     public static final class drawable {
         public static final int add_button=0x7f020000;
@@ -356,17 +357,16 @@ public final class R {
         public static final int spinner_view_h=0x7f030007;
     }
     public static final class string {
-        public static final int age_string=0x7f080005;
+        public static final int age_string=0x7f080004;
         public static final int app_name=0x7f080000;
-        public static final int err_string=0x7f080002;
-        public static final int field_trace_string=0x7f080007;
-        public static final int grid_mateial_al=0x7f080009;
-        public static final int grid_mateial_carbon=0x7f08000a;
+        public static final int field_trace_string=0x7f080006;
+        public static final int grid_mateial_al=0x7f080008;
+        public static final int grid_mateial_carbon=0x7f080009;
         public static final int hello_world=0x7f080001;
-        public static final int id_string=0x7f080006;
-        public static final int name_string=0x7f080003;
-        public static final int send_data_format_error=0x7f080008;
-        public static final int sex_string=0x7f080004;
+        public static final int id_string=0x7f080005;
+        public static final int name_string=0x7f080002;
+        public static final int send_data_format_error=0x7f080007;
+        public static final int sex_string=0x7f080003;
     }
     public static final class style {
         /** 

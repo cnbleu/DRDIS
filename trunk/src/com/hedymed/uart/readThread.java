@@ -122,8 +122,10 @@ public class readThread extends Thread {
 			} else {
 				mNakTimes = 0;//clear NAK counter.
 				String[] cmdAndArg = new String[2];
-				if(detectSupport(cmdAndArg, str)) 
+				if(detectSupport(cmdAndArg, str)) {// receive a new vaild CMD.
+					mUartUtils.uartUtilsSetErrString(null);
 					mUartUtils.checkSendFun(cmdAndArg);
+				}
 				else
 					uartUtils.sendToSendThread("ER???");
 			}

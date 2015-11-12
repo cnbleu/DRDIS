@@ -109,7 +109,6 @@
         android:background="@drawable/status_label_back_port"
         android:gravity="center_horizontal"
         android:paddingTop="10dp"
-        android:text="@string/err_string"
         android:textColor="@color/text_white_color"
         android:textSize="@dimen/error_dis_size" />
 

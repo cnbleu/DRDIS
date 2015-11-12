@@ -8,13 +8,12 @@ import java.io.OutputStream;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Looper;
 import android.os.Message;
 import android.os.SystemClock;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.hedymed.drdissys.MainActivity;
 
@@ -41,11 +40,13 @@ public class uartUtils {
 	public InputStream mInputStream;
 	private readThread mReadThread;
 	private static sendThread mSendThread;
-	private Activity mMainActivity;
+	private MainActivity mMainActivity;
 	private Timer mUartCheckTimer;
 	
 	public uartUtils(Context context) {
-		mMainActivity = (MainActivity)context;
+		if(context instanceof MainActivity)
+			mMainActivity = (MainActivity)context;
+		
 		serialPort = new SerailPortOpt();
 	}
 
@@ -155,16 +156,32 @@ public class uartUtils {
 		return false;
 	}
 	
+	public void uartUtilsSetErrString(final String errStr) {
+		if(Thread.currentThread() == Looper.getMainLooper().getThread())
+			mMainActivity.setErrDisText(errStr);
+		else {
+			mMainActivity.runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					mMainActivity.setErrDisText(errStr);
+				}
+			});
+		}
+	}
+	
 	private void uartTimerCheck() {
 		if(mSendThread.SendMutexLocked()) {
 			if(SystemClock.elapsedRealtime() - mSendThread.getSendJiffy() > UART_WAITE_TIME) {
-				mMainActivity.runOnUiThread(new Runnable() {
-					@Override
-					public void run() {
-						Toast.makeText(mMainActivity, 
-								"in timer thread, the UART connection lost...", Toast.LENGTH_LONG).show();
-					}
-				});
+				uartUtilsSetErrString("in timer thread, the UART connection lost...");
+				
+//				mMainActivity.runOnUiThread(new Runnable() {
+//					@Override
+//					public void run() {
+////						Toast.makeText(mMainActivity, 
+////								"in timer thread, the UART connection lost...", Toast.LENGTH_LONG).show();
+//						uartUtilsSetErrString("in timer thread, the UART connection lost...");
+//					}
+//				});
 				mSendThread.unLockSendMutex();
 				mSendThread.setLastSendCMD(null);
 			}
@@ -177,8 +194,9 @@ public class uartUtils {
 				mMainActivity.runOnUiThread(new Runnable() {
 					@Override
 					public void run() {
-						Toast.makeText(mMainActivity, 
-								"in UARTrecv thread, the UART connection lost...", Toast.LENGTH_LONG).show();
+//						Toast.makeText(mMainActivity, 
+//								"in UARTrecv thread, the UART connection lost...", Toast.LENGTH_LONG).show();
+						uartUtilsSetErrString("in UARTrecv thread, the UART connection lost...");
 					}
 				});
             	mSendThread.unLockSendMutex();

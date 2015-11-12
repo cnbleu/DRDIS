@@ -15,19 +15,19 @@ import com.hedymed.uart.uartUtils;
 
 public class addSubView extends LinearLayout {
 	private static final int MAS_DIS_LENGTH = 6;
-	private TextView valueText, unit;
-	private Button add, sub;
-	private double value;
-	private String function;
-	private Map<String, String> unitMap;
+	private TextView mValueText, mUnit;
+	private Button mAdd, mSub;
+	private double mValue;
+	private String mFunction;
+	private Map<String, String> mUnitMap;
 
 	public addSubView(Context context, AttributeSet attrs) {
 		this(context, attrs, null);
-		unitMap = new HashMap<String, String>();
-		unitMap.put("KV", "kV");
-		unitMap.put("MA", "mA");
-		unitMap.put("MAS", "mAs");
-		unitMap.put("MS", "ms");
+		mUnitMap = new HashMap<String, String>();
+		mUnitMap.put("KV", "kV");
+		mUnitMap.put("MA", "mA");
+		mUnitMap.put("MAS", "mAs");
+		mUnitMap.put("MS", "ms");
 		setValue(0);
 	}
 
@@ -36,81 +36,82 @@ public class addSubView extends LinearLayout {
 		View rootView = LayoutInflater.from(context).inflate(
 				R.layout.add_sub_layout, this, true);
 		
-		valueText = (TextView) rootView.findViewById(R.id.value_dis);
-		unit = (TextView) rootView.findViewById(R.id.value_unit);
-		add = (Button) rootView.findViewById(R.id.add);
-		sub = (Button) rootView.findViewById(R.id.sub);
+		mValueText = (TextView) rootView.findViewById(R.id.value_dis);
+		mUnit = (TextView) rootView.findViewById(R.id.value_unit);
+		mAdd = (Button) rootView.findViewById(R.id.add);
+		mSub = (Button) rootView.findViewById(R.id.sub);
 
-		add.setOnClickListener(new OnClickListener() {
+		mAdd.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				uartUtils.sendToSendThread(function + '+');
+				uartUtils.sendToSendThread(mFunction + '+');
 			}
 		});
 		
-		add.setOnLongClickListener(new OnLongClickListener() {
+		mAdd.setOnLongClickListener(new OnLongClickListener() {
 			@Override
 			public boolean onLongClick(View v) {
-				uartUtils.sendToSendThread(function + "++");
+				uartUtils.sendToSendThread(mFunction + "++");
 				return true;
 			}
 		});
 		
-		sub.setOnClickListener(new OnClickListener() {
+		mSub.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				uartUtils.sendToSendThread(function + '-');
+				uartUtils.sendToSendThread(mFunction + '-');
 			}
 		});
 		
-		sub.setOnLongClickListener(new OnLongClickListener() {
+		mSub.setOnLongClickListener(new OnLongClickListener() {
 			@Override
 			public boolean onLongClick(View v) {
-				uartUtils.sendToSendThread(function + "--");
+				uartUtils.sendToSendThread(mFunction + "--");
 				return true;
 			}
 		});
+		
 	}
 
 	public void setValue(String text) {
-		value = Double.parseDouble(text);
-		valueText.setText(text);
+		mValue = Double.parseDouble(text);
+		mValueText.setText(text);
 	}
 	
 	public void setValue(int value) {
-		this.value = value;
-		valueText.setText(String.valueOf(value));
+		this.mValue = value;
+		mValueText.setText(String.valueOf(value));
 	}
 	
 	public void setValue(double value) {
-		this.value = value;
+		this.mValue = value;
 		String str = String.valueOf(value);
 		if(str.length() > MAS_DIS_LENGTH)
 			str = str.substring(0, MAS_DIS_LENGTH);
 		
-		valueText.setText(str);
+		mValueText.setText(str);
 	}
 
 	public String getValue() {
-		return String.valueOf(value);
+		return String.valueOf(mValue);
 	}
 
 	public void setFunctoin(String function) {
-		this.function = function;
-		setUnit(unitMap.get(function));
+		this.mFunction = function;
+		setUnit(mUnitMap.get(function));
 	}
 
 	private void setUnit(String text) {
-		unit.setText(text);
+		mUnit.setText(text);
 	}
 	
 	public void setEnabled(boolean enable){
 		if(enable){
-			add.setVisibility(VISIBLE);
-			sub.setVisibility(VISIBLE);
+			mAdd.setVisibility(VISIBLE);
+			mSub.setVisibility(VISIBLE);
 		} else {
-			add.setVisibility(INVISIBLE);
-			sub.setVisibility(INVISIBLE);
+			mAdd.setVisibility(INVISIBLE);
+			mSub.setVisibility(INVISIBLE);
 		}
 	}
 

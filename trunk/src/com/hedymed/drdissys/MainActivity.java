@@ -128,7 +128,6 @@ public class MainActivity extends Activity {
 	
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
-		Log.d("wangbo", "MainActivity | onTouchEvent --> "  + TouchEventUtil.getTouchAction(event.getAction()));
 //		return mDetector.onTouchEvent(event);
 		return true;
 	}
@@ -487,6 +486,13 @@ public class MainActivity extends Activity {
 			}
 		});
 		
+	}
+
+	public void setErrDisText(String errStr) {
+		if(errStr == null)
+			mErrDisText.setText("");
+		
+		mErrDisText.setText(errStr);
 	}
 }
 
