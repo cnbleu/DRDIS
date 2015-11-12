@@ -65,7 +65,7 @@ public class MainActivity extends Activity {
 	private static enumFragment mCurFragment;
 	public static Handler mUiHandler;
 	private static int[] mBodyPicResourceIDArray;
-	private GestureDetector mDetector;
+//	private GestureDetector mDetector;
 	
 	uartUtils mUart = new uartUtils(this);
 	
@@ -79,7 +79,7 @@ public class MainActivity extends Activity {
 		findAllWidget();
 		initHander();
 		
-		mDetector = new GestureDetector(this, new customGestureListener());
+//		mDetector = new GestureDetector(this, new customGestureListener());
 		//打开串口 8O1, 115200bps
 		mUart.uartOpen(0, 115200, 8, 1, parityFlag[1]);
 		
@@ -128,70 +128,86 @@ public class MainActivity extends Activity {
 	
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
-		return mDetector.onTouchEvent(event);
+		Log.d("wangbo", "MainActivity | onTouchEvent --> "  + TouchEventUtil.getTouchAction(event.getAction()));
+//		return mDetector.onTouchEvent(event);
+		return true;
 	}
 	
-	class customGestureListener implements GestureDetector.OnGestureListener {
-		@Override
-		public boolean onDown(MotionEvent e) {
-			return false;
+	public void FragmentSlip() {
+		if(mCurFragment == enumFragment.MAIN_FRA) { // switch to second Fragment
+			mCurFragment = enumFragment.SECOND_FRA;
+			switchFragment(mMainFra, mSecondFra, "secondFragment");
+			mPageSwitchPic.setImageResource(R.drawable.page_2);
+		} else {// switch to main Fragment
+			mCurFragment = enumFragment.MAIN_FRA;
+			switchFragment(mSecondFra, mMainFra, "mainFragment");
+			mPageSwitchPic.setImageResource(R.drawable.page_1);
 		}
-		
-		@Override
-		public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
-				float velocityY) {
-			if((e1.getX() - e2.getX() > 100) || (e2.getX() - e1.getX() > 100)) {
-				if(mCurFragment == enumFragment.MAIN_FRA) { // switch to second Fragment
-					mCurFragment = enumFragment.SECOND_FRA;
-					switchFragment(mMainFra, mSecondFra, "secondFragment");
-					mPageSwitchPic.setImageResource(R.drawable.page_2);
-				} else {// switch to main Fragment
-					mCurFragment = enumFragment.MAIN_FRA;
-					switchFragment(mSecondFra, mMainFra, "mainFragment");
-					mPageSwitchPic.setImageResource(R.drawable.page_1);
-				}
-			}
-			
-			return false;
-		}
-		
-		@Override
-		public void onLongPress(MotionEvent e) {
-			// TODO Auto-generated method stub
-			
-		}
-		
-		@Override
-		public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX,
-				float distanceY) {
-			// TODO Auto-generated method stub
-			return false;
-		}
-		
-		@Override
-		public void onShowPress(MotionEvent e) {
-			// TODO Auto-generated method stub
-			
-		}
-		
-		@Override
-		public boolean onSingleTapUp(MotionEvent e) {
-			// TODO Auto-generated method stub
-			return false;
-		}
-		
-		private void switchFragment(Fragment from, Fragment to, String tag) {
-	        if (from != to) {
-	            FragmentTransaction transaction = getFragmentManager().beginTransaction();
-	            if (!to.isAdded()) {    // 先判断是否被add过
-	                transaction.hide(from).add(R.id.fragment_frame, to, tag).commit(); // 隐藏当前的fragment，add下一个到Activity中
-	            } else {
-	                transaction.hide(from).show(to).commit(); // 隐藏当前的fragment，显示下一个
-	            }
-	        }
-	    }
-		
 	}
+	
+	private void switchFragment(Fragment from, Fragment to, String tag) {
+        if (from != to) {
+            FragmentTransaction transaction = getFragmentManager().beginTransaction();
+            if (!to.isAdded()) {    // 先判断是否被add过
+                transaction.hide(from).add(R.id.fragment_frame, to, tag).commit(); // 隐藏当前的fragment，add下一个到Activity中
+            } else {
+                transaction.hide(from).show(to).commit(); // 隐藏当前的fragment，显示下一个
+            }
+        }
+    }
+	
+//	class customGestureListener implements GestureDetector.OnGestureListener {
+//		@Override
+//		public boolean onDown(MotionEvent e) {
+//			return false;
+//		}
+//		
+//		@Override
+//		public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
+//				float velocityY) {
+//			if((e1.getX() - e2.getX() > 100) || (e2.getX() - e1.getX() > 100)) {
+//				if(mCurFragment == enumFragment.MAIN_FRA) { // switch to second Fragment
+//					mCurFragment = enumFragment.SECOND_FRA;
+//					switchFragment(mMainFra, mSecondFra, "secondFragment");
+//					mPageSwitchPic.setImageResource(R.drawable.page_2);
+//				} else {// switch to main Fragment
+//					mCurFragment = enumFragment.MAIN_FRA;
+//					switchFragment(mSecondFra, mMainFra, "mainFragment");
+//					mPageSwitchPic.setImageResource(R.drawable.page_1);
+//				}
+//			}
+//			
+//			return false;
+//		}
+//		
+//		@Override
+//		public void onLongPress(MotionEvent e) {
+//			// TODO Auto-generated method stub
+//			
+//		}
+//		
+//		@Override
+//		public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX,
+//				float distanceY) {
+//			// TODO Auto-generated method stub
+//			return false;
+//		}
+//		
+//		@Override
+//		public void onShowPress(MotionEvent e) {
+//			// TODO Auto-generated method stub
+//			
+//		}
+//		
+//		@Override
+//		public boolean onSingleTapUp(MotionEvent e) {
+//			// TODO Auto-generated method stub
+//			return false;
+//		}
+//		
+//		
+//		
+//	}
 	 
 	private int[] findBodyPosPicArray(){
 		TypedArray ar = this.getResources().obtainTypedArray(R.array.body_pose_pic);

@@ -1,4 +1,4 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.hedymed.drdissys.custom_event_lineLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical" 
@@ -112,4 +112,4 @@
             android:layout_marginLeft="20dp" />
     </LinearLayout>
 
-</LinearLayout>
+</com.hedymed.drdissys.custom_event_lineLayout>
