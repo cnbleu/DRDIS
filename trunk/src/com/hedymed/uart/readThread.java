@@ -123,7 +123,7 @@ public class readThread extends Thread {
 				mNakTimes = 0;//clear NAK counter.
 				String[] cmdAndArg = new String[2];
 				if(detectSupport(cmdAndArg, str)) {// receive a new vaild CMD.
-					mUartUtils.uartUtilsSetErrString(null);
+					mUartUtils.uartUtilsSetErrString(null);//clear UART connection lost ERR.
 					mUartUtils.checkSendFun(cmdAndArg);
 				}
 				else

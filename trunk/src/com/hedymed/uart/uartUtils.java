@@ -173,15 +173,6 @@ public class uartUtils {
 		if(mSendThread.SendMutexLocked()) {
 			if(SystemClock.elapsedRealtime() - mSendThread.getSendJiffy() > UART_WAITE_TIME) {
 				uartUtilsSetErrString("in timer thread, the UART connection lost...");
-				
-//				mMainActivity.runOnUiThread(new Runnable() {
-//					@Override
-//					public void run() {
-////						Toast.makeText(mMainActivity, 
-////								"in timer thread, the UART connection lost...", Toast.LENGTH_LONG).show();
-//						uartUtilsSetErrString("in timer thread, the UART connection lost...");
-//					}
-//				});
 				mSendThread.unLockSendMutex();
 				mSendThread.setLastSendCMD(null);
 			}
@@ -191,14 +182,7 @@ public class uartUtils {
 	public void checkSendFun(String... cmdAndArg) {
 		if(cmdAndArg.length < 2) {
 			if( mReadThread.getNakTimes() >= NAK_THRESHOLD) {
-				mMainActivity.runOnUiThread(new Runnable() {
-					@Override
-					public void run() {
-//						Toast.makeText(mMainActivity, 
-//								"in UARTrecv thread, the UART connection lost...", Toast.LENGTH_LONG).show();
-						uartUtilsSetErrString("in UARTrecv thread, the UART connection lost...");
-					}
-				});
+				uartUtilsSetErrString("in UARTrecv thread, the UART connection lost...");
             	mSendThread.unLockSendMutex();
             	mSendThread.setLastSendCMD(null);//for next frame send
 			} else
