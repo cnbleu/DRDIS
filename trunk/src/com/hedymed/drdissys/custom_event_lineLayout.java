@@ -2,7 +2,6 @@ package com.hedymed.drdissys;
 
 import android.content.Context;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.ViewConfiguration;
 import android.widget.LinearLayout;
@@ -61,15 +60,21 @@ public class custom_event_lineLayout extends LinearLayout {
 
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
-		// TODO Auto-generated method stub
 		switch(event.getActionMasked()){
 			case MotionEvent.ACTION_DOWN:
 				break;
 				
 			case MotionEvent.ACTION_MOVE:
 				if(!mSwitchFlag) {
+					//如果没有点击在子控件上
+					if(!mScrolling && Math.abs(mTouchDownX - event.getX()) < mTouchSlop)
+						break;
+					
 					mSwitchFlag = true;
-					mAttachActivity.FragmentSlip();
+					if(mTouchDownX > event.getX())
+						mAttachActivity.FragmentSlip(false);
+					else
+						mAttachActivity.FragmentSlip(true);
 				}
 				break;
 				
@@ -79,7 +84,6 @@ public class custom_event_lineLayout extends LinearLayout {
 			default:
 				break;
 		}
-		
 		return true;
 	}
 

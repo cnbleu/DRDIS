@@ -9,6 +9,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import android.animation.Animator;
+import android.animation.AnimatorInflater;
 import android.app.Activity;
 import android.app.Fragment;
 import android.os.Bundle;
@@ -47,7 +49,7 @@ public class mainFragment extends Fragment {
 	
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setRetainInstance(true);
+//		setRetainInstance(true);
 	}
 	
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -80,6 +82,7 @@ public class mainFragment extends Fragment {
 	public void onResume() {
 		super.onResume();
 	}
+	
 
 	private void setAddSubViewEnable(int mode){
 		switch(mode){
@@ -371,6 +374,58 @@ public class mainFragment extends Fragment {
 
 	public String getms() {
 		return mHVGms.getValue();
+	}
+	
+	@Override
+	public Animator onCreateAnimator(int transit, boolean enter, int nextAnim) {
+		Animator animator = null;
+		final int animID = nextAnim;
+		
+		if(nextAnim == R.animator.fragment_slide_out_right || nextAnim == R.animator.fragment_slide_out_left ||
+					nextAnim == R.animator.fragment_slide_in_left || nextAnim == R.animator.fragment_slide_in_right) {
+			animator = AnimatorInflater.loadAnimator(getActivity(), nextAnim);
+		}
+			
+		if (animator != null && enter) {
+			animator.addListener(new Animator.AnimatorListener() {
+				
+				@Override
+				public void onAnimationStart(Animator animation) {
+					// TODO Auto-generated method stub
+					
+				}
+				
+				@Override
+				public void onAnimationRepeat(Animator animation) {
+					// TODO Auto-generated method stub
+					
+				}
+				
+				@Override
+				public void onAnimationEnd(Animator animation) {
+					Activity activity = getActivity();
+					MainActivity mainActivity = null;
+					
+					if(activity instanceof MainActivity) {
+						mainActivity = (MainActivity)activity;
+						mainActivity.setSwitchFragmentEnable(true);
+						
+						if(animID == R.animator.fragment_slide_out_right || animID == R.animator.fragment_slide_out_left) 
+							mainActivity.switchPageDot("secondFragment");
+						else 
+							mainActivity.switchPageDot("mainFragment");
+					}
+				}
+				
+				@Override
+				public void onAnimationCancel(Animator animation) {
+					// TODO Auto-generated method stub
+					
+				}
+			});
+        }
+		
+		return animator;
 	}
 
 }

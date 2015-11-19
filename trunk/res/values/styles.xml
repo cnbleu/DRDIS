@@ -22,6 +22,7 @@
     <style name="mySpinnerStyle" parent="android:style/Widget.ListView.DropDown">
         <item name="android:divider">#415971</item>
         <item name="android:dividerHeight">1dp</item>
+        <item name="android:listSelector">#34495E</item>
     </style>
     
 </resources>

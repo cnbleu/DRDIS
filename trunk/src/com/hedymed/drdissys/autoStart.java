@@ -3,7 +3,6 @@ package com.hedymed.drdissys;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.widget.Toast;
 
 public class autoStart extends BroadcastReceiver {
 	@Override

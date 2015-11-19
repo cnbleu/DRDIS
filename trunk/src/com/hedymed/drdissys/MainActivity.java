@@ -17,7 +17,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
-import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -65,8 +64,7 @@ public class MainActivity extends Activity {
 	private static enumFragment mCurFragment;
 	public static Handler mUiHandler;
 	private static int[] mBodyPicResourceIDArray;
-//	private GestureDetector mDetector;
-	
+	private boolean mSwitchFragmentEnable = true;
 	uartUtils mUart = new uartUtils(this);
 	
 	
@@ -132,21 +130,30 @@ public class MainActivity extends Activity {
 		return true;
 	}
 	
-	public void FragmentSlip() {
-		if(mCurFragment == enumFragment.MAIN_FRA) { // switch to second Fragment
-			mCurFragment = enumFragment.SECOND_FRA;
-			switchFragment(mMainFra, mSecondFra, "secondFragment");
-			mPageSwitchPic.setImageResource(R.drawable.page_2);
-		} else {// switch to main Fragment
-			mCurFragment = enumFragment.MAIN_FRA;
-			switchFragment(mSecondFra, mMainFra, "mainFragment");
-			mPageSwitchPic.setImageResource(R.drawable.page_1);
+	public void FragmentSlip(boolean direction) {
+		if(mSwitchFragmentEnable) {
+			mSwitchFragmentEnable = false;
+			if(mCurFragment == enumFragment.MAIN_FRA) { // switch to second Fragment
+				mCurFragment = enumFragment.SECOND_FRA;
+				switchFragment(mMainFra, mSecondFra, "secondFragment", direction);
+//				mPageSwitchPic.setImageResource(R.drawable.page_2);
+			} else {// switch to main Fragment
+				mCurFragment = enumFragment.MAIN_FRA;
+				switchFragment(mSecondFra, mMainFra, "mainFragment", direction);
+//				mPageSwitchPic.setImageResource(R.drawable.page_1);
+			}
 		}
 	}
 	
-	private void switchFragment(Fragment from, Fragment to, String tag) {
+	private void switchFragment(Fragment from, Fragment to, String tag, boolean SlipDirectionRight) {
         if (from != to) {
             FragmentTransaction transaction = getFragmentManager().beginTransaction();
+            
+            if(SlipDirectionRight)
+            	transaction.setCustomAnimations(R.animator.fragment_slide_in_left, R.animator.fragment_slide_out_right); 
+            else
+            	transaction.setCustomAnimations(R.animator.fragment_slide_in_right, R.animator.fragment_slide_out_left); 
+            
             if (!to.isAdded()) {    // 先判断是否被add过
                 transaction.hide(from).add(R.id.fragment_frame, to, tag).commit(); // 隐藏当前的fragment，add下一个到Activity中
             } else {
@@ -155,59 +162,17 @@ public class MainActivity extends Activity {
         }
     }
 	
-//	class customGestureListener implements GestureDetector.OnGestureListener {
-//		@Override
-//		public boolean onDown(MotionEvent e) {
-//			return false;
-//		}
-//		
-//		@Override
-//		public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
-//				float velocityY) {
-//			if((e1.getX() - e2.getX() > 100) || (e2.getX() - e1.getX() > 100)) {
-//				if(mCurFragment == enumFragment.MAIN_FRA) { // switch to second Fragment
-//					mCurFragment = enumFragment.SECOND_FRA;
-//					switchFragment(mMainFra, mSecondFra, "secondFragment");
-//					mPageSwitchPic.setImageResource(R.drawable.page_2);
-//				} else {// switch to main Fragment
-//					mCurFragment = enumFragment.MAIN_FRA;
-//					switchFragment(mSecondFra, mMainFra, "mainFragment");
-//					mPageSwitchPic.setImageResource(R.drawable.page_1);
-//				}
-//			}
-//			
-//			return false;
-//		}
-//		
-//		@Override
-//		public void onLongPress(MotionEvent e) {
-//			// TODO Auto-generated method stub
-//			
-//		}
-//		
-//		@Override
-//		public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX,
-//				float distanceY) {
-//			// TODO Auto-generated method stub
-//			return false;
-//		}
-//		
-//		@Override
-//		public void onShowPress(MotionEvent e) {
-//			// TODO Auto-generated method stub
-//			
-//		}
-//		
-//		@Override
-//		public boolean onSingleTapUp(MotionEvent e) {
-//			// TODO Auto-generated method stub
-//			return false;
-//		}
-//		
-//		
-//		
-//	}
-	 
+	public void switchPageDot(String fragmentTag) {
+		if("mainFragment".equals(fragmentTag))
+			mPageSwitchPic.setImageResource(R.drawable.page_1);
+		else if("secondFragment".equals(fragmentTag))
+			mPageSwitchPic.setImageResource(R.drawable.page_2);
+	}
+	
+	public void setSwitchFragmentEnable(boolean enableFlag) {
+		mSwitchFragmentEnable = enableFlag;
+	}
+	
 	private int[] findBodyPosPicArray(){
 		TypedArray ar = this.getResources().obtainTypedArray(R.array.body_pose_pic);
 		int len = ar.length();     
