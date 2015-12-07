@@ -30,6 +30,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import com.hedymed.log.writeLoglistener;
 import com.hedymed.uart.uartUtils;
 
 public class secondFrament extends Fragment {
@@ -43,6 +44,7 @@ public class secondFrament extends Fragment {
 	private ToggleButton mAecTopField;
 	private EditText mCustomSOD;
 	private View mRootView;
+	private writeLoglistener mWriteLoglistener;
 	
 	@Override
 	public void onAttach(Activity activity) {
@@ -86,6 +88,10 @@ public class secondFrament extends Fragment {
 	@Override
 	public void onResume() {
 		super.onResume();
+	}
+	
+	public void setWriteLoglistener(writeLoglistener mWriteLoglistener) {
+		this.mWriteLoglistener = mWriteLoglistener;
 	}
 	
 	private void registerEventMonitor(){

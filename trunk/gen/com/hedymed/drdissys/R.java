@@ -19,35 +19,37 @@ public final class R {
         public static final int fragment_slide_out_right=0x7f050003;
     }
     public static final class array {
-        public static final int age_string=0x7f060002;
-        public static final int body_pos_string=0x7f060001;
-        public static final int body_pose_pic=0x7f060004;
-        public static final int body_size_string=0x7f060003;
-        public static final int hvg_args_string=0x7f060000;
+        public static final int age_string=0x7f070002;
+        public static final int body_pos_string=0x7f070001;
+        public static final int body_pose_pic=0x7f070006;
+        public static final int body_size_string=0x7f070003;
+        public static final int hvg_args_string=0x7f070000;
+        public static final int rotation_angle_list=0x7f070004;
+        public static final int rotation_value_list=0x7f070005;
     }
     public static final class attr {
     }
     public static final class color {
-        public static final int Transparent_color=0x7f070004;
-        public static final int blue_color=0x7f070006;
-        public static final int cur_pos_background=0x7f070002;
-        public static final int drop_down_background=0x7f070000;
-        public static final int green_color=0x7f070007;
-        public static final int red_color=0x7f070005;
-        public static final int spinner_dis_color=0x7f070003;
-        public static final int text_white_color=0x7f070001;
-        public static final int white_color=0x7f070008;
+        public static final int Transparent_color=0x7f080004;
+        public static final int blue_color=0x7f080006;
+        public static final int cur_pos_background=0x7f080002;
+        public static final int drop_down_background=0x7f080000;
+        public static final int green_color=0x7f080007;
+        public static final int red_color=0x7f080005;
+        public static final int spinner_dis_color=0x7f080003;
+        public static final int text_white_color=0x7f080001;
+        public static final int white_color=0x7f080008;
     }
     public static final class dimen {
-        public static final int body_pic_left_margin=0x7f080005;
-        public static final int body_pic_top_margin=0x7f080006;
-        public static final int error_dis_size=0x7f080000;
-        public static final int id_dis_size=0x7f080002;
-        public static final int name_dis_size=0x7f080001;
-        public static final int name_textview_margin=0x7f080007;
-        public static final int spinner_vertical_view_width=0x7f080004;
-        public static final int spinner_view_width=0x7f080003;
-        public static final int toast_text_size=0x7f080008;
+        public static final int body_pic_left_margin=0x7f090005;
+        public static final int body_pic_top_margin=0x7f090006;
+        public static final int error_dis_size=0x7f090000;
+        public static final int id_dis_size=0x7f090002;
+        public static final int name_dis_size=0x7f090001;
+        public static final int name_textview_margin=0x7f090007;
+        public static final int spinner_vertical_view_width=0x7f090004;
+        public static final int spinner_view_width=0x7f090003;
+        public static final int toast_text_size=0x7f090008;
     }
     public static final class drawable {
         public static final int add_button=0x7f020000;
@@ -248,109 +250,110 @@ public final class R {
         public static final int help_button_unchecked_land=0x7f0200c3;
         public static final int help_button_unchecked_stand=0x7f0200c4;
         public static final int ic_launcher=0x7f0200c5;
-        public static final int id_background=0x7f0200c6;
-        public static final int id_background_port=0x7f0200c7;
-        public static final int light_field_10x12=0x7f0200c8;
-        public static final int light_field_10x8=0x7f0200c9;
-        public static final int light_field_12x10=0x7f0200ca;
-        public static final int light_field_14x14=0x7f0200cb;
-        public static final int light_field_14x17=0x7f0200cc;
-        public static final int light_field_17x14=0x7f0200cd;
-        public static final int light_field_17x17=0x7f0200ce;
-        public static final int light_field_8x10=0x7f0200cf;
-        public static final int main_background=0x7f0200d0;
-        public static final int main_background_port=0x7f0200d1;
-        public static final int name_background=0x7f0200d2;
-        public static final int name_background_port=0x7f0200d3;
-        public static final int page_1=0x7f0200d4;
-        public static final int page_2=0x7f0200d5;
-        public static final int pos_head_down=0x7f0200d6;
-        public static final int pos_head_up=0x7f0200d7;
-        public static final int pos_stand=0x7f0200d8;
-        public static final int rha=0x7f0200d9;
-        public static final int rva=0x7f0200da;
-        public static final int second_fragment_background=0x7f0200db;
-        public static final int sid=0x7f0200dc;
-        public static final int small_focus=0x7f0200dd;
-        public static final int small_focus_pressed=0x7f0200de;
-        public static final int small_focus_selector=0x7f0200df;
-        public static final int sod_input=0x7f0200e0;
-        public static final int spinner_back=0x7f0200e1;
-        public static final int spinner_bak_small=0x7f0200e2;
-        public static final int spinner_select_item=0x7f0200e3;
-        public static final int spinner_select_item_large=0x7f0200e4;
-        public static final int status_bar_back=0x7f0200e5;
-        public static final int status_bar_back_port=0x7f0200e6;
-        public static final int status_label_back=0x7f0200e7;
-        public static final int status_label_back_port=0x7f0200e8;
-        public static final int sub_button=0x7f0200e9;
-        public static final int sub_button_checked=0x7f0200ea;
-        public static final int thermal_pic_100=0x7f0200eb;
-        public static final int thermal_pic_25=0x7f0200ec;
-        public static final int thermal_pic_50=0x7f0200ed;
-        public static final int thermal_pic_75=0x7f0200ee;
+        public static final int ic_settings_applications=0x7f0200c6;
+        public static final int id_background=0x7f0200c7;
+        public static final int id_background_port=0x7f0200c8;
+        public static final int light_field_10x12=0x7f0200c9;
+        public static final int light_field_10x8=0x7f0200ca;
+        public static final int light_field_12x10=0x7f0200cb;
+        public static final int light_field_14x14=0x7f0200cc;
+        public static final int light_field_14x17=0x7f0200cd;
+        public static final int light_field_17x14=0x7f0200ce;
+        public static final int light_field_17x17=0x7f0200cf;
+        public static final int light_field_8x10=0x7f0200d0;
+        public static final int main_background=0x7f0200d1;
+        public static final int main_background_port=0x7f0200d2;
+        public static final int name_background=0x7f0200d3;
+        public static final int name_background_port=0x7f0200d4;
+        public static final int page_1=0x7f0200d5;
+        public static final int page_2=0x7f0200d6;
+        public static final int pos_head_down=0x7f0200d7;
+        public static final int pos_head_up=0x7f0200d8;
+        public static final int pos_stand=0x7f0200d9;
+        public static final int rha=0x7f0200da;
+        public static final int rva=0x7f0200db;
+        public static final int second_fragment_background=0x7f0200dc;
+        public static final int sid=0x7f0200dd;
+        public static final int small_focus=0x7f0200de;
+        public static final int small_focus_pressed=0x7f0200df;
+        public static final int small_focus_selector=0x7f0200e0;
+        public static final int sod_input=0x7f0200e1;
+        public static final int spinner_back=0x7f0200e2;
+        public static final int spinner_bak_small=0x7f0200e3;
+        public static final int spinner_select_item=0x7f0200e4;
+        public static final int spinner_select_item_large=0x7f0200e5;
+        public static final int status_bar_back=0x7f0200e6;
+        public static final int status_bar_back_port=0x7f0200e7;
+        public static final int status_label_back=0x7f0200e8;
+        public static final int status_label_back_port=0x7f0200e9;
+        public static final int sub_button=0x7f0200ea;
+        public static final int sub_button_checked=0x7f0200eb;
+        public static final int thermal_pic_100=0x7f0200ec;
+        public static final int thermal_pic_25=0x7f0200ed;
+        public static final int thermal_pic_50=0x7f0200ee;
+        public static final int thermal_pic_75=0x7f0200ef;
     }
     public static final class id {
-        public static final int HVG_arg_selecter=0x7f0b001c;
-        public static final int add=0x7f0b0017;
-        public static final int aec_bottom=0x7f0b0032;
-        public static final int aec_left_top=0x7f0b0030;
-        public static final int aec_right_top=0x7f0b0031;
-        public static final int age_selecter=0x7f0b001e;
-        public static final int age_text=0x7f0b0005;
-        public static final int alignment_status_pic=0x7f0b000b;
-        public static final int big_focus=0x7f0b0021;
-        public static final int body_picture=0x7f0b0002;
-        public static final int body_type_selecter=0x7f0b001f;
-        public static final int dis_pic_layout=0x7f0b0001;
-        public static final int dose_selecter=0x7f0b002e;
-        public static final int err_dis_text=0x7f0b0009;
-        public static final int expouse_status_pic=0x7f0b000a;
-        public static final int field_trace_button=0x7f0b002c;
-        public static final int focus_select=0x7f0b0020;
-        public static final int fpd_direction=0x7f0b000c;
-        public static final int fpd_picture=0x7f0b0027;
-        public static final int fragment_frame=0x7f0b0007;
-        public static final int gridMaterial=0x7f0b0013;
-        public static final int grid_rate=0x7f0b0012;
-        public static final int grid_sid=0x7f0b0011;
-        public static final int grid_text_layout=0x7f0b0010;
-        public static final int help_button=0x7f0b0016;
-        public static final int hvg_current=0x7f0b0024;
-        public static final int hvg_mas=0x7f0b0025;
-        public static final int hvg_ms=0x7f0b0026;
-        public static final int hvg_voltage=0x7f0b0023;
-        public static final int id_text=0x7f0b0006;
-        public static final int level_selecter=0x7f0b002f;
-        public static final int light_field_selecter=0x7f0b002d;
-        public static final int linearLayout1=0x7f0b0000;
-        public static final int name_text=0x7f0b0003;
-        public static final int page_switch_pic=0x7f0b0008;
-        public static final int position_selecter=0x7f0b001d;
-        public static final int radioGroup_align=0x7f0b0028;
-        public static final int radio_bottom_align=0x7f0b002b;
-        public static final int radio_mid_align=0x7f0b002a;
-        public static final int radio_top_align=0x7f0b0029;
-        public static final int rha_text=0x7f0b000d;
-        public static final int rva_text=0x7f0b000e;
-        public static final int sex_text=0x7f0b0004;
-        public static final int sid_text=0x7f0b000f;
-        public static final int small_focus=0x7f0b0022;
-        public static final int sod_editor=0x7f0b0033;
-        public static final int spinner_image=0x7f0b0036;
-        public static final int spinner_image_vertical=0x7f0b0039;
-        public static final int spinner_layout=0x7f0b0034;
-        public static final int spinner_layout_vertical=0x7f0b0037;
-        public static final int spinner_text=0x7f0b0035;
-        public static final int spinner_text_vertical=0x7f0b0038;
-        public static final int spinner_view_layout=0x7f0b003a;
-        public static final int spinner_view_text=0x7f0b003b;
-        public static final int sub=0x7f0b001a;
-        public static final int table_layout=0x7f0b001b;
-        public static final int thermal_picture=0x7f0b0014;
-        public static final int thermal_text=0x7f0b0015;
-        public static final int value_dis=0x7f0b0018;
-        public static final int value_unit=0x7f0b0019;
+        public static final int HVG_arg_selecter=0x7f0c001c;
+        public static final int add=0x7f0c0017;
+        public static final int aec_bottom=0x7f0c0032;
+        public static final int aec_left_top=0x7f0c0030;
+        public static final int aec_right_top=0x7f0c0031;
+        public static final int age_selecter=0x7f0c001e;
+        public static final int age_text=0x7f0c0005;
+        public static final int alignment_status_pic=0x7f0c000b;
+        public static final int big_focus=0x7f0c0021;
+        public static final int body_picture=0x7f0c0002;
+        public static final int body_type_selecter=0x7f0c001f;
+        public static final int dis_pic_layout=0x7f0c0001;
+        public static final int dose_selecter=0x7f0c002e;
+        public static final int err_dis_text=0x7f0c0009;
+        public static final int expouse_status_pic=0x7f0c000a;
+        public static final int field_trace_button=0x7f0c002c;
+        public static final int focus_select=0x7f0c0020;
+        public static final int fpd_direction=0x7f0c000c;
+        public static final int fpd_picture=0x7f0c0027;
+        public static final int fragment_frame=0x7f0c0007;
+        public static final int gridMaterial=0x7f0c0013;
+        public static final int grid_rate=0x7f0c0012;
+        public static final int grid_sid=0x7f0c0011;
+        public static final int grid_text_layout=0x7f0c0010;
+        public static final int help_button=0x7f0c0016;
+        public static final int hvg_current=0x7f0c0024;
+        public static final int hvg_mas=0x7f0c0025;
+        public static final int hvg_ms=0x7f0c0026;
+        public static final int hvg_voltage=0x7f0c0023;
+        public static final int id_text=0x7f0c0006;
+        public static final int level_selecter=0x7f0c002f;
+        public static final int light_field_selecter=0x7f0c002d;
+        public static final int linearLayout1=0x7f0c0000;
+        public static final int name_text=0x7f0c0003;
+        public static final int page_switch_pic=0x7f0c0008;
+        public static final int position_selecter=0x7f0c001d;
+        public static final int radioGroup_align=0x7f0c0028;
+        public static final int radio_bottom_align=0x7f0c002b;
+        public static final int radio_mid_align=0x7f0c002a;
+        public static final int radio_top_align=0x7f0c0029;
+        public static final int rha_text=0x7f0c000d;
+        public static final int rva_text=0x7f0c000e;
+        public static final int sex_text=0x7f0c0004;
+        public static final int sid_text=0x7f0c000f;
+        public static final int small_focus=0x7f0c0022;
+        public static final int sod_editor=0x7f0c0033;
+        public static final int spinner_image=0x7f0c0036;
+        public static final int spinner_image_vertical=0x7f0c0039;
+        public static final int spinner_layout=0x7f0c0034;
+        public static final int spinner_layout_vertical=0x7f0c0037;
+        public static final int spinner_text=0x7f0c0035;
+        public static final int spinner_text_vertical=0x7f0c0038;
+        public static final int spinner_view_layout=0x7f0c003a;
+        public static final int spinner_view_text=0x7f0c003b;
+        public static final int sub=0x7f0c001a;
+        public static final int table_layout=0x7f0c001b;
+        public static final int thermal_picture=0x7f0c0014;
+        public static final int thermal_text=0x7f0c0015;
+        public static final int value_dis=0x7f0c0018;
+        public static final int value_unit=0x7f0c0019;
     }
     public static final class layout {
         public static final int activity_main=0x7f030000;
@@ -363,16 +366,30 @@ public final class R {
         public static final int spinner_view_h=0x7f030007;
     }
     public static final class string {
-        public static final int age_string=0x7f090004;
-        public static final int app_name=0x7f090000;
-        public static final int field_trace_string=0x7f090006;
-        public static final int grid_mateial_al=0x7f090008;
-        public static final int grid_mateial_carbon=0x7f090009;
-        public static final int hello_world=0x7f090001;
-        public static final int id_string=0x7f090005;
-        public static final int name_string=0x7f090002;
-        public static final int send_data_format_error=0x7f090007;
-        public static final int sex_string=0x7f090003;
+        public static final int app_name=0x7f0a0000;
+        public static final int engineering_heads_sum_1=0x7f0a0008;
+        public static final int engineering_heads_title_1=0x7f0a0007;
+        public static final int engineering_return_button_text=0x7f0a0006;
+        public static final int field_trace_string=0x7f0a0002;
+        public static final int grid_mateial_al=0x7f0a0004;
+        public static final int grid_mateial_carbon=0x7f0a0005;
+        public static final int hello_world=0x7f0a0001;
+        public static final int ip_group_title=0x7f0a0009;
+        public static final int local_ip_dialog_title=0x7f0a000c;
+        public static final int local_ip_summary=0x7f0a000b;
+        public static final int local_ip_title=0x7f0a000a;
+        public static final int rotation_angle_dialog_title=0x7f0a0017;
+        public static final int rotation_angle_summary=0x7f0a0016;
+        public static final int rotation_angle_title=0x7f0a0015;
+        public static final int rotation_group_title=0x7f0a0011;
+        public static final int rotation_switch_sum_off=0x7f0a0014;
+        public static final int rotation_switch_sum_on=0x7f0a0013;
+        public static final int rotation_switch_title=0x7f0a0012;
+        public static final int send_data_format_error=0x7f0a0003;
+        public static final int server_name_default_value=0x7f0a0010;
+        public static final int server_name_dialog_title=0x7f0a000f;
+        public static final int server_name_summary=0x7f0a000e;
+        public static final int server_name_title=0x7f0a000d;
     }
     public static final class style {
         /** 
@@ -386,22 +403,15 @@ public final class R {
             backward-compatibility can go here.
 
         
-
-        Base application theme for API 11+. This theme completely replaces
-        AppBaseTheme from res/values/styles.xml on API 11+ devices.
-    
- API 11 theme customizations can go here. 
-
-        Base application theme for API 14+. This theme completely replaces
-        AppBaseTheme from BOTH res/values/styles.xml and
-        res/values-v11/styles.xml on API 14+ devices.
-    
- API 14 theme customizations can go here. 
          */
-        public static final int AppBaseTheme=0x7f0a0000;
+        public static final int AppBaseTheme=0x7f0b0000;
         /**  Application theme. 
          */
-        public static final int AppTheme=0x7f0a0001;
-        public static final int mySpinnerStyle=0x7f0a0002;
+        public static final int AppTheme=0x7f0b0001;
+        public static final int mySpinnerStyle=0x7f0b0002;
+    }
+    public static final class xml {
+        public static final int preference_headers=0x7f060000;
+        public static final int preferences=0x7f060001;
     }
 }

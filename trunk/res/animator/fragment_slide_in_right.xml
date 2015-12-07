@@ -5,4 +5,4 @@
     android:valueTo="0" 
     android:valueType="floatType" 
     android:propertyName="X" 
-    android:duration="1000"  />
+    android:duration="100"  />

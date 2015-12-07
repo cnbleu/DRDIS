@@ -14,72 +14,92 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
+import com.hedymed.drdissys.MainActivity;
+import com.hedymed.engineer.preferenceInterface;
 
-public class netRecvThread extends Thread {
+public class netRecvThread extends Thread implements preferenceInterface.localIPChangelistener{
 	private static final short frameStartFlag = (short)0xF00A;
 	
-	private Socket recvSocket;
-	Bitmap bitmap;
-	DataInputStream dis;
-	String picName;
-	Context env;
+	private Socket mRecvSocket;
+	private Bitmap mBitmap;
+	private DataInputStream mDis;
+	private String mPicName;
+	private String mPCAddr;
+	private Context mContext;
+	private boolean mIPChangeFlag;
 	
 	public netRecvThread(Context env, String threadName){
 		super(threadName);
-		this.env = env;
+		mContext = env;
+		mIPChangeFlag = true;
+		mPCAddr = MainActivity.mPreferences.getString("localIP", null);
+				
+		if(env instanceof MainActivity)
+			((MainActivity)env).setLocalIPChangeListener(this);
+		
 	}
 
 	public void netRecvThreadStop() {
 		interrupt();
 	}
 	
+	public void getChangedIP(String key) {
+		mPCAddr = MainActivity.readPreferencesString(key);
+		mIPChangeFlag = true;
+	}
+	
 	public void run(){
-		try {
-			recvSocket = new Socket("192.168.37.52", 3000);
-			dis = new DataInputStream(new BufferedInputStream(recvSocket.getInputStream()));
+		while(!isInterrupted()){
 			try {
-				while(!isInterrupted()){
-					if(frameStartFlag == dis.readShort()){
-						if(dis.readByte() == 3){
-							int nameSize = dis.readInt();// 名称长度
-							int imgSize = dis.readInt();// 文件长度
-							byte[] buffer = new byte[nameSize];
-							dis.readFully(buffer);
-							picName = new String(buffer);
-							File file = env.getDir("wang", Context.MODE_PRIVATE);
-							String filePath = file.getCanonicalPath() + File.separator + picName;
-							new File(filePath).deleteOnExit();//退出时删除该临时文件
-							BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(filePath));
-			                buffer = new byte[2048];
-			                int len = -1;
-			                while (imgSize > 0 && (len = dis.read(buffer, 0, imgSize < buffer.length ? (int) imgSize : buffer.length)) != -1) {
-			                    bos.write(buffer, 0, len);
-			                    imgSize -= len;
-			                }
-			                bos.close();
-			                //bitmap = BitmapFactory.decodeFile(picName);
-			                
-			                final BitmapFactory.Options options = new BitmapFactory.Options();
-							options.inJustDecodeBounds = true; 
-							BitmapFactory.decodeFile(filePath, options);
-							//bis.reset();
-							
-							int width = env.getResources().getDisplayMetrics().widthPixels;
-							int height = env.getResources().getDisplayMetrics().heightPixels;
-							// Calculate inSampleSize
-							options.inSampleSize = calculateSampleSize(options, width, height);
-		
-							// Decode bitmap with inSampleSize set
-							options.inJustDecodeBounds = false; 
-							bitmap = BitmapFactory.decodeFile(filePath, options);
-							
-							if(bitmap != null) {
-								Intent intent = new Intent().setClassName(env, "com.hedymed.drdissys.disPictureActivity");
-								intent.putExtra("netRecvBitmap", bitmap);
-								env.startActivity(intent);
-							}
-							sleep(50);
+				if(mIPChangeFlag) {
+					mIPChangeFlag = false;
+					if(mRecvSocket != null)
+						mRecvSocket.close();
+					
+					mRecvSocket = new Socket(mPCAddr, 3000);
+					mDis = new DataInputStream(new BufferedInputStream(mRecvSocket.getInputStream()));
+				}
+				
+				if(mDis != null && frameStartFlag == mDis.readShort()){
+					if(mDis.readByte() == 3){
+						int nameSize = mDis.readInt();// 名称长度
+						int imgSize = mDis.readInt();// 文件长度
+						byte[] buffer = new byte[nameSize];
+						mDis.readFully(buffer);
+						mPicName = new String(buffer);
+						File file = mContext.getDir("wang", Context.MODE_PRIVATE);
+						String filePath = file.getCanonicalPath() + File.separator + mPicName;
+						new File(filePath).deleteOnExit();//退出时删除该临时文件
+						BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(filePath));
+		                buffer = new byte[2048];
+		                int len = -1;
+		                while (imgSize > 0 && (len = mDis.read(buffer, 0, imgSize < buffer.length ? (int) imgSize : buffer.length)) != -1) {
+		                    bos.write(buffer, 0, len);
+		                    imgSize -= len;
+		                }
+		                bos.close();
+		                //bitmap = BitmapFactory.decodeFile(picName);
+		                
+		                final BitmapFactory.Options options = new BitmapFactory.Options();
+						options.inJustDecodeBounds = true; 
+						BitmapFactory.decodeFile(filePath, options);
+						//bis.reset();
+						
+						int width = mContext.getResources().getDisplayMetrics().widthPixels;
+						int height = mContext.getResources().getDisplayMetrics().heightPixels;
+						// Calculate inSampleSize
+						options.inSampleSize = calculateSampleSize(options, width, height);
+	
+						// Decode bitmap with inSampleSize set
+						options.inJustDecodeBounds = false; 
+						mBitmap = BitmapFactory.decodeFile(filePath, options);
+						
+						if(mBitmap != null) {
+							Intent intent = new Intent().setClassName(mContext, "com.hedymed.drdissys.disPictureActivity");
+							intent.putExtra("netRecvBitmap", mBitmap);
+							mContext.startActivity(intent);
 						}
+						sleep(50);
 					}
 				}
 			}
@@ -95,19 +115,14 @@ public class netRecvThread extends Thread {
 			}
 			finally {
 				try {
-					if(dis != null)
-						dis.close();
-					if(recvSocket != null)
-						recvSocket.close();
+					if(mDis != null)
+						mDis.close();
+					if(mRecvSocket != null)
+						mRecvSocket.close();
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
 			}
-		}
-		catch (UnknownHostException e1) {
-			e1.printStackTrace();
-		} catch (IOException e1) {
-			e1.printStackTrace();
 		}
 	}
     

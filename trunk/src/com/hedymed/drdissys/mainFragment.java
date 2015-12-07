@@ -28,6 +28,7 @@ import android.widget.SimpleAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.hedymed.log.writeLoglistener;
 import com.hedymed.uart.uartUtils;
 
 public class mainFragment extends Fragment {
@@ -41,6 +42,7 @@ public class mainFragment extends Fragment {
 	private Spinner mBodyTypeSelecter;
 	private RadioButton mBigFocusButton, mSmallFocusButton;
 	private View rootView;
+	private writeLoglistener mWriteLoglistener;
 	
 	@Override
 	public void onAttach(Activity activity) {
@@ -128,6 +130,7 @@ public class mainFragment extends Fragment {
 			int curPosition = spinner.getSelectedItemPosition();
 			
 			if(spinner == mHvgArgSelecter) {
+				mWriteLoglistener.writeOPeratorLog("etetetete");
 				setAddSubViewEnable(curPosition);//put this position for power up
 				if(appData.get("ET") != curPosition) {
 					appData.put("ET", curPosition);
@@ -376,6 +379,11 @@ public class mainFragment extends Fragment {
 		return mHVGms.getValue();
 	}
 	
+	
+	public void setWriteLoglistener(writeLoglistener mWriteLoglistener) {
+		this.mWriteLoglistener = mWriteLoglistener;
+	}
+
 	@Override
 	public Animator onCreateAnimator(int transit, boolean enter, int nextAnim) {
 		Animator animator = null;

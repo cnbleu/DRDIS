@@ -9,9 +9,10 @@ import java.lang.reflect.Method;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
-import android.content.res.Configuration;
 import android.content.res.TypedArray;
 import android.os.Bundle;
 import android.os.Handler;
@@ -27,10 +28,13 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.hedymed.engineer.EngineerActivity;
+import com.hedymed.engineer.preferenceInterface;
+import com.hedymed.log.writeLog;
 import com.hedymed.net.netRecvThread;
 import com.hedymed.uart.uartUtils;
 
-public class MainActivity extends Activity {
+public class MainActivity extends Activity implements SharedPreferences.OnSharedPreferenceChangeListener {
 	private static final int[] parityFlag = { 'n', 'o', 'e', 'm', 's' };
 	private static final String PACK_UP_METHOD = "onDetachedFromWindow";//Spinner类中protected类型的方法，其作用是使其下拉菜单隐藏。
 	public static final String UI_HANDLER_KEY = "ui_hander_key";
@@ -62,11 +66,18 @@ public class MainActivity extends Activity {
 	private mainFragment mMainFra;
 	private secondFrament mSecondFra;
 	private static enumFragment mCurFragment;
-	public static Handler mUiHandler;
 	private static int[] mBodyPicResourceIDArray;
-	private boolean mSwitchFragmentEnable = true;
-	uartUtils mUart = new uartUtils(this);
+	public static Handler mUiHandler;
+	private boolean mSwitchFragmentEnable;
+	private uartUtils mUart;
+	public static SharedPreferences mPreferences;
+	private preferenceInterface.localIPChangelistener mLocalIPChangeListener;
+	private writeLog mWriteLog;
 	
+	public MainActivity() {
+		mSwitchFragmentEnable = true;
+		mUart = new uartUtils(this);
+	}
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -77,9 +88,12 @@ public class MainActivity extends Activity {
 		findAllWidget();
 		initHander();
 		
-//		mDetector = new GestureDetector(this, new customGestureListener());
+		mPreferences = getSharedPreferences("com.hedymed.drdissys_preferences", Context.MODE_PRIVATE);
+		mPreferences.registerOnSharedPreferenceChangeListener(this);
+		
 		//打开串口 8O1, 115200bps
 		mUart.uartOpen(0, 115200, 8, 1, parityFlag[1]);
+		mWriteLog = new writeLog(this);
 		
 		if(mBodyPicResourceIDArray == null)
 			mBodyPicResourceIDArray = findBodyPosPicArray();
@@ -89,12 +103,22 @@ public class MainActivity extends Activity {
 			mMainFra = (mainFragment) getFragmentManager().findFragmentByTag("mainFragment");
 			mSecondFra = (secondFrament) getFragmentManager().findFragmentByTag("secondFragment");
 			
-			if(mCurFragment == enumFragment.MAIN_FRA && mSecondFra !=null)
-				ft.hide(mSecondFra).commit();
-			else if(mCurFragment == enumFragment.SECOND_FRA && mMainFra != null)	
-				ft.hide(mMainFra).commit();
+			if(mSecondFra !=null) {
+				mSecondFra.setWriteLoglistener(mWriteLog);
+				if(mCurFragment == enumFragment.MAIN_FRA)
+					ft.hide(mSecondFra).commit();
+			}
+			
+			if(mMainFra != null) {
+				mMainFra.setWriteLoglistener(mWriteLog);
+				if(mCurFragment == enumFragment.SECOND_FRA)
+					ft.hide(mMainFra).commit();
+			}
+			
+			refreshActivity();
 		} else {
-			mMainFra = new mainFragment();
+			mMainFra = new mainFragment();	
+			mMainFra.setWriteLoglistener(mWriteLog);
 			mSecondFra = new secondFrament();
 			mCurFragment = enumFragment.MAIN_FRA;
 			
@@ -122,6 +146,33 @@ public class MainActivity extends Activity {
 	protected void onDestroy() {
 		super.onDestroy();
 		mUart.uartClose();
+		mWriteLog.close();
+		Intent intent = new Intent();
+		intent.setAction("com.hedymed.drdissys.LOG_SERVICE");
+		stopService(intent);
+	}
+	
+	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+		switch(key) {
+		case "localIP":
+			if(mLocalIPChangeListener != null)
+				mLocalIPChangeListener.getChangedIP("localIP");
+			break;
+			
+		case "rotation_angle":
+			Boolean rotationEnable = readPreferencesBoolean("rotation_enable");
+			if(rotationEnable != null && rotationEnable == true) {
+				String angle = readPreferencesString("rotation_angle");
+				if("0".equals(angle))
+					setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT);
+				else if("90".equals(angle))
+					setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+				else if("-90".equals(angle))
+					setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE);
+			}
+			break;	
+				
+		}
 	}
 	
 	@Override
@@ -129,7 +180,7 @@ public class MainActivity extends Activity {
 //		return mDetector.onTouchEvent(event);
 		return true;
 	}
-	
+		
 	public void FragmentSlip(boolean direction) {
 		if(mSwitchFragmentEnable) {
 			mSwitchFragmentEnable = false;
@@ -213,6 +264,21 @@ public class MainActivity extends Activity {
 			}
 		};
 	}
+	private void refreshActivity() {
+		MVC_view_handler(new String[]{"NAM", null});
+		MVC_view_handler(new String[]{"SEX", null});
+		MVC_view_handler(new String[]{"ID", null});
+		MVC_view_handler(new String[]{"APR", null});
+		MVC_view_handler(new String[]{"AGE", null});
+		MVC_view_handler(new String[]{"ES", null});
+		MVC_view_handler(new String[]{"AI", null});
+		MVC_view_handler(new String[]{"FPD", null});
+		MVC_view_handler(new String[]{"RHA", null});
+		MVC_view_handler(new String[]{"RVA", null});
+		MVC_view_handler(new String[]{"SID", null});
+		MVC_view_handler(new String[]{"GRID", null});
+		MVC_view_handler(new String[]{"TC", null});
+	}
 	
 	private void MVC_model_handler(String[] cmdAndArg) {
 		try{
@@ -253,19 +319,20 @@ public class MainActivity extends Activity {
 	private void MVC_view_handler(String[] cmdAndArg) {
 		try {
 			switch(cmdAndArg[0]) {
-			case "PIC":
-				//Toast.makeText(MainActivity.this, (String)msg.obj, Toast.LENGTH_LONG).show();
-				Intent intent = new Intent().setClassName(MainActivity.this, "com.hedymed.drdissys.disPictureActivity");
-				//Bundle bundle = new Bundle()
-				//intent.putExtras(extras);
-				startActivity(intent);
-				break;
+//			case "PIC":
+//				Intent intent = new Intent().setClassName(MainActivity.this, "com.hedymed.drdissys.disPictureActivity");
+//				//Bundle bundle = new Bundle()
+//				//intent.putExtras(extras);
+//				startActivity(intent);
+//				break;
 				
 			case "NAM":
 				try {
-					byte[] array = hexString2ByteArray(appStringData.get("NAM"));
-					String str = new String(array, "UTF-16BE");
-					mNameText.setText(str);
+					if(appStringData.get("NAM") != null) {
+						byte[] array = hexString2ByteArray(appStringData.get("NAM"));
+						String str = new String(array, "UTF-16BE");
+						mNameText.setText(str);
+					}
 				} catch (UnsupportedEncodingException e) {
 					e.printStackTrace();
 				}
@@ -273,16 +340,19 @@ public class MainActivity extends Activity {
 				
 			case "SEX":
 				try {
-					byte[] array = hexString2ByteArray(appStringData.get("SEX"));
-					String str = new String(array, "UTF-16BE");
-					mSexText.setText(str);
+					if(appStringData.get("SEX") != null) {
+						byte[] array = hexString2ByteArray(appStringData.get("SEX"));
+						String str = new String(array, "UTF-16BE");
+						mSexText.setText(str);
+					}
 				} catch (UnsupportedEncodingException e) {
 					e.printStackTrace();
 				}
 				break;
 				
 			case "ID":
-				mIdText.setText(appStringData.get("ID"));
+				if(appStringData.get("ID") != null)
+					mIdText.setText(appStringData.get("ID"));
 				break;
 				
 //			case NEW_errDisText:
@@ -443,11 +513,8 @@ public class MainActivity extends Activity {
 		mHelpButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Configuration config = getResources().getConfiguration();
-				if(config.orientation == Configuration.ORIENTATION_LANDSCAPE)
-					MainActivity.this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT);
-				else if(config.orientation == Configuration.ORIENTATION_PORTRAIT)
-					MainActivity.this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+				Intent intent = new Intent(MainActivity.this, EngineerActivity.class);
+				startActivity(intent);
 			}
 		});
 		
@@ -459,6 +526,26 @@ public class MainActivity extends Activity {
 		
 		mErrDisText.setText(errStr);
 	}
+
+	public void setLocalIPChangeListener(preferenceInterface.localIPChangelistener mLocalIPChangeListener) {
+		this.mLocalIPChangeListener = mLocalIPChangeListener;
+	}
+	
+	public static String readPreferencesString(String key) {
+		if(mPreferences != null) {
+			if(mPreferences.contains(key))
+				return mPreferences.getString(key, null);
+		}
+		return null;
+	}  
+	
+	public static Boolean readPreferencesBoolean(String key) {
+		if(mPreferences != null) {
+			if(mPreferences.contains(key))
+				return mPreferences.getBoolean(key, false);
+		}
+		return null;
+	} 
 }
 
 
