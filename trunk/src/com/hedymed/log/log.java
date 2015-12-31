@@ -32,6 +32,7 @@ import android.os.Environment;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
+import android.os.SystemClock;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -69,12 +70,12 @@ public class log extends Service {
 
 	private String logServiceLogName = "Log.log";// 本服务输出的日志文件名称
 	private SimpleDateFormat myLogSdf = new SimpleDateFormat(
-			"yyyy-MM-dd HH:mm:ss");
+			"yyyy-MM-dd HH:mm:ss", Locale.US);
 //	private OutputStreamWriter writer;
 	private PrintWriter writer;
 
 	// 日志名称格式
-	private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HHmmss");
+	private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HHmmss", Locale.US);
 
 	private Process process;
 
@@ -90,6 +91,8 @@ public class log extends Service {
 
 	private static String MONITOR_LOG_SIZE_ACTION = "MONITOR_LOG_SIZE"; // 日志文件监测action
 	private static String SWITCH_LOG_FILE_ACTION = "SWITCH_LOG_FILE_ACTION"; // 切换日志文件action
+	
+	private boolean debugThreadRun = true;
 
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -105,6 +108,11 @@ public class log extends Service {
 		new LogCollectorThread().start();
 	}
 	
+	@Override
+	public int onStartCommand(Intent intent, int flags, int startId) {
+	    return START_NOT_STICKY;
+	}
+	
 	private void init() {
 		LOG_PATH_MEMORY_DIR = getFilesDir().getAbsolutePath() + File.separator
 				+ "log";
@@ -113,7 +121,7 @@ public class log extends Service {
 		LOG_PATH_SDCARD_DIR = Environment.getExternalStorageDirectory()
 				.getAbsolutePath()
 				+ File.separator
-				+ "NewYear2015"
+				+ "Operator_log"
 				+ File.separator + "log";
 		createLogDir();
 		
@@ -130,7 +138,7 @@ public class log extends Service {
 		CURR_LOG_TYPE = getCurrLogType();
 		Log.i(TAG, "LogService onCreate");
 		
-		// get ROOT permission
+		// get READ_LOGS permission
 		String pname = getPackageName();
 		String[] CMDLINE_GRANTPERMS = { "su", "-c", null };
 		if (getPackageManager().checkPermission(android.Manifest.permission.READ_LOGS, pname) != PackageManager.PERMISSION_GRANTED) {
@@ -152,6 +160,19 @@ public class log extends Service {
 		    }
 		} else
 		    Log.d(TAG, "we have the READ_LOGS permission already!");
+		
+		//////////////
+		new Thread(new Runnable() {  
+			  
+            @Override  
+            public void run() {  
+                while (debugThreadRun) {  
+                    SystemClock.sleep(1000);  
+                    count++;  
+                    Log.i(TAG, "LogService runnable : " + count);  
+                }  
+            }  
+        }).start();  
 	}
 
 	private void register() {
@@ -229,11 +250,11 @@ public class log extends Service {
 				Thread.sleep(1000);// 休眠，创建文件，然后处理文件，不然该文件还没创建，会影响文件删除
 
 				handleLog();
-
-				wakeLock.release(); // 释放
 			} catch (Exception e) {
 				e.printStackTrace();
 				recordLogServiceLog(Log.getStackTraceString(e));
+			}finally {
+				wakeLock.release(); // 释放
 			}
 		}
 	}
@@ -415,16 +436,15 @@ public class log extends Service {
 		createLogDir();
 		String logFileName = sdf.format(new Date()) + ".log";// 日志文件名称
 		if (CURR_LOG_TYPE == MEMORY_TYPE) {
-			CURR_INSTALL_LOG_NAME = logFileName;
+			CURR_INSTALL_LOG_NAME = LOG_PATH_MEMORY_DIR + File.separator + logFileName;
 			Log.d(TAG, "Log stored in memory, the path is:"
 					+ LOG_PATH_MEMORY_DIR + File.separator + logFileName);
-			return LOG_PATH_MEMORY_DIR + File.separator + logFileName;
 		} else {
-			CURR_INSTALL_LOG_NAME = null;
+			CURR_INSTALL_LOG_NAME = LOG_PATH_SDCARD_DIR + File.separator + logFileName;;
 			Log.d(TAG, "Log stored in SDcard, the path is:"
 					+ LOG_PATH_SDCARD_DIR + File.separator + logFileName);
-			return LOG_PATH_SDCARD_DIR + File.separator + logFileName;
 		}
+		return CURR_INSTALL_LOG_NAME;
 	}
 
 	/**
@@ -433,12 +453,14 @@ public class log extends Service {
 	 *          动所有存储在内存中的日志到SDCard中，并将之前部署的日志大小 监控取消
 	 */
 	public void handleLog() {
+		cancelLogSizeMonitorTask();
+		
 		if (CURR_LOG_TYPE == MEMORY_TYPE) {
 			deployLogSizeMonitorTask();
 			deleteMemoryExpiredLog();
 		} else {
 			moveLogfile();
-			cancelLogSizeMonitorTask();
+			deployLogSizeMonitorTask();
 			deleteSDcardExpiredLog();
 		}
 	}
@@ -477,9 +499,7 @@ public class log extends Service {
 	 */
 	private void checkLogSize() {
 		if (CURR_INSTALL_LOG_NAME != null && !"".equals(CURR_INSTALL_LOG_NAME)) {
-			String path = LOG_PATH_MEMORY_DIR + File.separator
-					+ CURR_INSTALL_LOG_NAME;
-			File file = new File(path);
+			File file = new File(CURR_INSTALL_LOG_NAME);
 			if (!file.exists()) {
 				return;
 			}
@@ -603,7 +623,7 @@ public class log extends Service {
 			for (int i = 0; i < allFiles.length - 2; i++) { // "-2"保存最近的两个日志文件、日志服务日志文件、当前在写日志文件
 				File _file = allFiles[i];
 				if (logServiceLogName.equals(_file.getName())
-						|| _file.getName().equals(CURR_INSTALL_LOG_NAME)) {
+						|| _file.getName().equals(new File(CURR_INSTALL_LOG_NAME).getName())) {
 					continue;
 				}
 				_file.delete();
@@ -798,13 +818,14 @@ public class log extends Service {
 	public void onDestroy() {
 		super.onDestroy();
 		recordLogServiceLog("LogService onDestroy");
+		Log.i("LogService", "LogService onDestroy");
 		if (writer != null) {
 			writer.close();
 		}
 		if (process != null) {
 			process.destroy();
 		}
-
+		debugThreadRun = false;
 		unregisterReceiver(sdStateReceiver);
 		unregisterReceiver(logTaskReceiver);
 	}

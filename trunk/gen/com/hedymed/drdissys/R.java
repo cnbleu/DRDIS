@@ -390,6 +390,7 @@ public final class R {
         public static final int server_name_dialog_title=0x7f0a000f;
         public static final int server_name_summary=0x7f0a000e;
         public static final int server_name_title=0x7f0a000d;
+        public static final int video_play_group_title=0x7f0a0018;
     }
     public static final class style {
         /** 

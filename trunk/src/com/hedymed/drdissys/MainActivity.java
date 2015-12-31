@@ -5,17 +5,25 @@ import static com.hedymed.drdissys.AppDataStruct.appStringData;
 
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
+import java.util.List;
 
 import android.app.Activity;
+import android.app.ActivityManager;
+import android.app.ActivityManager.RunningServiceInfo;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
+import android.app.Service;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.res.TypedArray;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
 import android.os.Message;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -28,9 +36,10 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.hedymed.db.DBUtil;
+import com.hedymed.db.ExposeArgSQLHelper;
 import com.hedymed.engineer.EngineerActivity;
 import com.hedymed.engineer.preferenceInterface;
-import com.hedymed.log.writeLog;
 import com.hedymed.net.netRecvThread;
 import com.hedymed.uart.uartUtils;
 
@@ -72,11 +81,15 @@ public class MainActivity extends Activity implements SharedPreferences.OnShared
 	private uartUtils mUart;
 	public static SharedPreferences mPreferences;
 	private preferenceInterface.localIPChangelistener mLocalIPChangeListener;
-	private writeLog mWriteLog;
+	public ExposeArgSQLHelper mExposeArgSQLHelper;
+	public SQLiteDatabase mExposeArgDatabase;
+	public DBUtil mExposeArgDB;
+	private ExposeArgSQLHelper mExposeArgHelper;
 	
 	public MainActivity() {
 		mSwitchFragmentEnable = true;
 		mUart = new uartUtils(this);
+		mExposeArgHelper = new ExposeArgSQLHelper(this);
 	}
 	
 	@Override
@@ -84,6 +97,9 @@ public class MainActivity extends Activity implements SharedPreferences.OnShared
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.activity_main);
+		mExposeArgDB = DBUtil.getInstance(mExposeArgHelper.getReadableDatabase());
+		//start Log Service
+		startLogService();
 		
 		findAllWidget();
 		initHander();
@@ -93,7 +109,6 @@ public class MainActivity extends Activity implements SharedPreferences.OnShared
 		
 		//打开串口 8O1, 115200bps
 		mUart.uartOpen(0, 115200, 8, 1, parityFlag[1]);
-		mWriteLog = new writeLog(this);
 		
 		if(mBodyPicResourceIDArray == null)
 			mBodyPicResourceIDArray = findBodyPosPicArray();
@@ -104,13 +119,11 @@ public class MainActivity extends Activity implements SharedPreferences.OnShared
 			mSecondFra = (secondFrament) getFragmentManager().findFragmentByTag("secondFragment");
 			
 			if(mSecondFra !=null) {
-				mSecondFra.setWriteLoglistener(mWriteLog);
 				if(mCurFragment == enumFragment.MAIN_FRA)
 					ft.hide(mSecondFra).commit();
 			}
 			
 			if(mMainFra != null) {
-				mMainFra.setWriteLoglistener(mWriteLog);
 				if(mCurFragment == enumFragment.SECOND_FRA)
 					ft.hide(mMainFra).commit();
 			}
@@ -118,7 +131,6 @@ public class MainActivity extends Activity implements SharedPreferences.OnShared
 			refreshActivity();
 		} else {
 			mMainFra = new mainFragment();	
-			mMainFra.setWriteLoglistener(mWriteLog);
 			mSecondFra = new secondFrament();
 			mCurFragment = enumFragment.MAIN_FRA;
 			
@@ -127,7 +139,7 @@ public class MainActivity extends Activity implements SharedPreferences.OnShared
 			ft.commit();
 		}
 		
-		new netRecvThread(this, "netRecvThread").start();
+//		new netRecvThread(this, "netRecvThread").start();
 	}
 	
 //	@Override
@@ -146,12 +158,30 @@ public class MainActivity extends Activity implements SharedPreferences.OnShared
 	protected void onDestroy() {
 		super.onDestroy();
 		mUart.uartClose();
-		mWriteLog.close();
-		Intent intent = new Intent();
-		intent.setAction("com.hedymed.drdissys.LOG_SERVICE");
-		stopService(intent);
+		mExposeArgHelper.close();
 	}
 	
+	public boolean isServiceRunning(String serviceName) {
+		ActivityManager am =  (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+		List<RunningServiceInfo> infos = am.getRunningServices(Integer.MAX_VALUE);
+		for(RunningServiceInfo info:infos) {
+			//包名+类名
+			String myServiceName  = info.service.getClassName();
+			if(myServiceName.equals(serviceName)) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	private void startLogService() {
+		if(!isServiceRunning("com.hedymed.log.log")) {//if log service is not running
+			Intent intent = new Intent();
+			intent.setAction("com.hedymed.drdissys.LOG_SERVICE");
+			startService(intent);
+		}
+	}
+
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
 		switch(key) {
 		case "localIP":
@@ -261,6 +291,7 @@ public class MainActivity extends Activity implements SharedPreferences.OnShared
 				String[] cmdString = (String[]) msg.getData().getCharSequenceArray(UI_HANDLER_KEY);
 				MVC_model_handler(cmdString);
 				MVC_view_handler(cmdString);
+				Log.i("Recv CMD", String.format("CMD is %s, ARG is %s", cmdString[0], cmdString[1]));
 			}
 		};
 	}

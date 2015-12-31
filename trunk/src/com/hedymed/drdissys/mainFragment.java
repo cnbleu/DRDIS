@@ -28,7 +28,6 @@ import android.widget.SimpleAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import com.hedymed.log.writeLoglistener;
 import com.hedymed.uart.uartUtils;
 
 public class mainFragment extends Fragment {
@@ -40,10 +39,9 @@ public class mainFragment extends Fragment {
 	private Spinner mPositionSelecter;
 	private Spinner mAgeSelecter;
 	private Spinner mBodyTypeSelecter;
+	private boolean mHvgArgSelecterInit, mPositionSelecterInit, mAgeSelecterInit, mBodyTypeSelecterInit;
 	private RadioButton mBigFocusButton, mSmallFocusButton;
 	private View rootView;
-	private writeLoglistener mWriteLoglistener;
-	
 	@Override
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
@@ -68,6 +66,11 @@ public class mainFragment extends Fragment {
 			mBodyTypeSelecter = (Spinner) rootView.findViewById(R.id.body_type_selecter);
 			mBigFocusButton = (RadioButton)rootView.findViewById(R.id.big_focus);
 			mSmallFocusButton = (RadioButton)rootView.findViewById(R.id.small_focus);
+			
+			mHvgArgSelecterInit = false;
+			mPositionSelecterInit = false;
+			mAgeSelecterInit = false;
+			mBodyTypeSelecterInit = false;
 			
 			setHVGArgSelecter();//…Ë÷√adapter
 			setPositionSelecter();//…Ë÷√adapter
@@ -130,26 +133,45 @@ public class mainFragment extends Fragment {
 			int curPosition = spinner.getSelectedItemPosition();
 			
 			if(spinner == mHvgArgSelecter) {
-				mWriteLoglistener.writeOPeratorLog("etetetete");
-				setAddSubViewEnable(curPosition);//put this position for power up
-				if(appData.get("ET") != curPosition) {
-					appData.put("ET", curPosition);
-					uartUtils.sendToSendThread("ET" + curPosition);
+				if(!mHvgArgSelecterInit)
+					mHvgArgSelecterInit = true;
+				else {
+					Log.i("mainFragment", String.format("mHvgArgSelecter selected position is %d", position));
+					setAddSubViewEnable(curPosition);//put this position for power up
+					if(appData.get("ET") != curPosition) {
+						appData.put("ET", curPosition);
+						uartUtils.sendToSendThread("ET" + curPosition);
+					}
 				}
 			} else if(spinner == mPositionSelecter) {
-				if(appData.get("POS") != curPosition) {
-					appData.put("POS", curPosition);
-					uartUtils.sendToSendThread("POS" + curPosition);
+				if(!mPositionSelecterInit)
+					mPositionSelecterInit = true;
+				else {
+					Log.i("mainFragment", String.format("mPositionSelecter selected position is %d", position));
+					if(appData.get("POS") != curPosition) {
+						appData.put("POS", curPosition);
+						uartUtils.sendToSendThread("POS" + curPosition);
+					}
 				}
 			} else if (spinner == mAgeSelecter) {
-				if(appData.get("AG") != curPosition) {
-					appData.put("AG", curPosition);
-					uartUtils.sendToSendThread("AG" + curPosition);
+				if(!mAgeSelecterInit)
+					mAgeSelecterInit = true;
+				else {
+					Log.i("mainFragment", String.format("mAgeSelecter selected position is %d", position));
+					if(appData.get("AG") != curPosition) {
+						appData.put("AG", curPosition);
+						uartUtils.sendToSendThread("AG" + curPosition);
+					}
 				}
 			} else if(spinner == mBodyTypeSelecter) {
-				if(appData.get("BOD") != curPosition) {
-					appData.put("BOD", curPosition);
-					uartUtils.sendToSendThread("BOD" + curPosition);
+				if(!mBodyTypeSelecterInit)
+					mBodyTypeSelecterInit = true;
+				else {
+					Log.i("mainFragment", String.format("mBodyTypeSelecter selected position is %d", position));
+					if(appData.get("BOD") != curPosition) {
+						appData.put("BOD", curPosition);
+						uartUtils.sendToSendThread("BOD" + curPosition);
+					}
 				}
 			}
 		}
@@ -171,6 +193,7 @@ public class mainFragment extends Fragment {
 			@Override
 			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 				if(isChecked) {
+					Log.i("mainFragment", "mBigFocusButton isChecked");
 					if(appData.get("FOC") != FOCUS_BIG) {
 						appData.put("FOC", (int) FOCUS_BIG);
 						uartUtils.sendToSendThread("FOC" + FOCUS_BIG);
@@ -183,6 +206,7 @@ public class mainFragment extends Fragment {
 			@Override
 			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 				if(isChecked) {
+					Log.i("mainFragment", "mSmallFocusButton isChecked");
 					if(appData.get("FOC") != FOCUS_SMALL) {
 						appData.put("FOC", (int) FOCUS_SMALL);
 						uartUtils.sendToSendThread("FOC" + FOCUS_SMALL);
@@ -379,10 +403,6 @@ public class mainFragment extends Fragment {
 		return mHVGms.getValue();
 	}
 	
-	
-	public void setWriteLoglistener(writeLoglistener mWriteLoglistener) {
-		this.mWriteLoglistener = mWriteLoglistener;
-	}
 
 	@Override
 	public Animator onCreateAnimator(int transit, boolean enter, int nextAnim) {

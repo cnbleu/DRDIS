@@ -35,6 +35,6 @@
 		    android:entries="@array/rotation_angle_list"
 		    android:entryValues="@array/rotation_value_list"/>
 		
-		
 	</PreferenceCategory>	
+	
 </PreferenceScreen>

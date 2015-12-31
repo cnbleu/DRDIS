@@ -30,21 +30,20 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
-import com.hedymed.log.writeLoglistener;
 import com.hedymed.uart.uartUtils;
 
 public class secondFrament extends Fragment {
 	private RadioButton mTopAlignBtn, mMidAlignBtn, mBotAlignbtn;
-	private ToggleButton mFieldTractSelector;
+	private ToggleButton mFieldTraceSelector;
 	private Spinner mLightFieldSelecter;
 	private Spinner mDoseClassSelecter;//Dose Ñ¡Ôñ
 	private Spinner mCompenClassSelecter;//ÆØ¹â²¹³¥
+	private boolean mLightFieldSelecterInit, mDoseClassSelecterInit, mCompenClassSelecterInit;
 	private ToggleButton mAecLeftField;
 	private ToggleButton mAecRightField;
 	private ToggleButton mAecTopField;
 	private EditText mCustomSOD;
 	private View mRootView;
-	private writeLoglistener mWriteLoglistener;
 	
 	@Override
 	public void onAttach(Activity activity) {
@@ -67,7 +66,7 @@ public class secondFrament extends Fragment {
 			mMidAlignBtn = (RadioButton)mRootView.findViewById(R.id.radio_mid_align);
 			mBotAlignbtn = (RadioButton)mRootView.findViewById(R.id.radio_bottom_align);
 			
-			mFieldTractSelector = (ToggleButton)mRootView.findViewById(R.id.field_trace_button);
+			mFieldTraceSelector = (ToggleButton)mRootView.findViewById(R.id.field_trace_button);
 			mLightFieldSelecter = (Spinner)mRootView.findViewById(R.id.light_field_selecter);
 			mDoseClassSelecter = (Spinner)mRootView.findViewById(R.id.dose_selecter);
 			mCompenClassSelecter = (Spinner)mRootView.findViewById(R.id.level_selecter);
@@ -75,6 +74,10 @@ public class secondFrament extends Fragment {
 			mAecRightField = (ToggleButton)mRootView.findViewById(R.id.aec_right_top);
 			mAecTopField = (ToggleButton)mRootView.findViewById(R.id.aec_bottom);
 			mCustomSOD = (EditText)mRootView.findViewById(R.id.sod_editor);
+			
+			mLightFieldSelecterInit = false;
+			mDoseClassSelecterInit = false;
+			mCompenClassSelecterInit = false;
 			
 			setLightField();
 			setDoseComplement();
@@ -90,10 +93,6 @@ public class secondFrament extends Fragment {
 		super.onResume();
 	}
 	
-	public void setWriteLoglistener(writeLoglistener mWriteLoglistener) {
-		this.mWriteLoglistener = mWriteLoglistener;
-	}
-	
 	private void registerEventMonitor(){
 		mLightFieldSelecter.setOnItemSelectedListener(new customSpinnerListener());
 		mDoseClassSelecter.setOnItemSelectedListener(new customSpinnerListener());
@@ -102,7 +101,7 @@ public class secondFrament extends Fragment {
 		mTopAlignBtn.setOnCheckedChangeListener(new customRaidoButtonListener());
 		mMidAlignBtn.setOnCheckedChangeListener(new customRaidoButtonListener());
 		mBotAlignbtn.setOnCheckedChangeListener(new customRaidoButtonListener());
-		mFieldTractSelector.setOnCheckedChangeListener(new customToggleButtonListener()); 
+		mFieldTraceSelector.setOnCheckedChangeListener(new customToggleButtonListener()); 
 		mAecLeftField.setOnCheckedChangeListener(new customToggleButtonListener());
 		mAecRightField.setOnCheckedChangeListener(new customToggleButtonListener());
 		mAecTopField.setOnCheckedChangeListener(new customToggleButtonListener());
@@ -113,7 +112,8 @@ public class secondFrament extends Fragment {
 					int argument = 0;
 					int value = Integer.parseInt(v.getText().toString());
 					if((value <= 180) && (value >= 0 )) {
-						argument = (byte)value;
+						argument = value;
+						Log.i("secondFragment", String.format("SOD Set to %d", argument));
 						if(appData.get("SOD") != argument) {
 							appData.put("SOD", argument);
 							uartUtils.sendToSendThread("SOD" + argument);
@@ -137,16 +137,19 @@ public class secondFrament extends Fragment {
 				RadioButton rb = (RadioButton)buttonView;
 				if(isChecked) {
 					if(rb == mTopAlignBtn) {
+						Log.i("secondFragment", "Select Top Align");
 						if(appData.get("AS") != ALIGN_TOP) {
 							appData.put("AS", (int) ALIGN_TOP);
 							uartUtils.sendToSendThread("AS" + ALIGN_TOP);
 						}
 					} else if(mMidAlignBtn == rb) {
+						Log.i("secondFragment", "Select Middle Align");
 						if(appData.get("AS") != ALIGN_MID) {
 							appData.put("AS", (int) ALIGN_MID);
 							uartUtils.sendToSendThread("AS" + ALIGN_MID);
 						}
 					} else if(mBotAlignbtn == rb) {
+						Log.i("secondFragment", "Select Bottom Align");
 						if(appData.get("AS") != ALIGN_BOT) {
 							appData.put("AS", (int) ALIGN_BOT);
 							uartUtils.sendToSendThread("AS" + ALIGN_BOT);
@@ -164,11 +167,14 @@ public class secondFrament extends Fragment {
 				ToggleButton button = (ToggleButton)buttonView;
 				int argument = 0;
 				
-				if(mFieldTractSelector == button) {
-					if(isChecked)
+				if(mFieldTraceSelector == button) {
+					if(isChecked) {
+						Log.i("secondFragment", "Field Trace ON");
 						argument = AppDataStruct.FIELD_TRACE_ON;
-					else
+					} else {
+						Log.i("secondFragment", "Field Trace OFF");
 						argument = AppDataStruct.FIELD_TRACE_OFF;
+					}
 					
 					if(appData.get("TRA") != argument) {
 						appData.put("TRA", argument);
@@ -193,6 +199,7 @@ public class secondFrament extends Fragment {
 						else
 							argument &= ~AppDataStruct.AEC_TOP_FIELD_MASK;
 					}
+					Log.i("secondFragment", getAECLogMessage(argument)); 
 					if(appData.get("AEC") != argument) {
 						appData.put("AEC", argument);
 						uartUtils.sendToSendThread("AEC" + argument);
@@ -201,6 +208,28 @@ public class secondFrament extends Fragment {
 			}
 		}	
 	}
+	 
+	 private String getAECLogMessage(int argument) {
+		 String left = null, right = null, top = null;
+		 
+		 if((argument & AppDataStruct.AEC_LEFT_FIELD_MASK) != 0)
+			 left = "AEC Left Field is selected, ";
+		 else
+			 left = "AEC Left Field NOT selected, ";
+		 
+		 if((argument & AppDataStruct.AEC_RIGHT_FIELD_MASK) != 0)
+			 right = "AEC Right Field is selected, ";
+		 else
+			 right = "AEC Right Field NOT selected, ";
+		 
+		 if((argument & AppDataStruct.AEC_TOP_FIELD_MASK) != 0)
+			 top = "AEC Top Field is selected.";
+		 else
+			 top = "AEC Top Field NOT selected.";
+		 
+		 return left + right + top;
+	 }
+	 
 	
 	class customSpinnerListener implements AdapterView.OnItemSelectedListener {
 		@Override
@@ -209,19 +238,34 @@ public class secondFrament extends Fragment {
 			int curPosition = spinner.getSelectedItemPosition();
 			
 			if(spinner == mLightFieldSelecter) {
-				if(appData.get("FIE") != curPosition) {
-					appData.put("FIE", curPosition);
-					uartUtils.sendToSendThread("FIE" + position);
+				if(!mLightFieldSelecterInit)
+					mLightFieldSelecterInit = true;
+				else {
+					Log.i("secondFragment", String.format("mLightFieldSelecter selected position is %d", position));
+					if(appData.get("FIE") != curPosition) {
+						appData.put("FIE", curPosition);
+						uartUtils.sendToSendThread("FIE" + position);
+					}
 				}
 			} else if(spinner == mDoseClassSelecter) {
-				if(appData.get("DC") != curPosition) {
-					appData.put("DC", curPosition);
-					uartUtils.sendToSendThread("DC" + position);
+				if(!mDoseClassSelecterInit)
+					mDoseClassSelecterInit = true;
+				else {
+					Log.i("secondFragment", String.format("mDoseClassSelecter selected position is %d", position));
+					if(appData.get("DC") != curPosition) {
+						appData.put("DC", curPosition);
+						uartUtils.sendToSendThread("DC" + position);
+					}
 				}
 			} else if (spinner == mCompenClassSelecter) {
-				if(appData.get("EC") != curPosition) {
-					appData.put("EC", curPosition);
-					uartUtils.sendToSendThread("EC" + position);
+				if(!mCompenClassSelecterInit)
+					mCompenClassSelecterInit = true;
+				else {
+					Log.i("secondFragment", String.format("mCompenClassSelecter selected position is %d", position));
+					if(appData.get("EC") != curPosition) {
+						appData.put("EC", curPosition);
+						uartUtils.sendToSendThread("EC" + position);
+					}
 				}
 			} 
 		}
@@ -247,9 +291,9 @@ public class secondFrament extends Fragment {
 			
 			tempValue = appData.get("TRA");
 			if(AppDataStruct.FIELD_TRACE_OFF == tempValue)
-				mFieldTractSelector.setChecked(false);
+				mFieldTraceSelector.setChecked(false);
 			else if(AppDataStruct.FIELD_TRACE_ON == tempValue)
-				mFieldTractSelector.setChecked(true);
+				mFieldTraceSelector.setChecked(true);
 			
 			MainActivity.setSpinnerSelect(mLightFieldSelecter, appData.get("FIE"));
 			MainActivity.setSpinnerSelect(mDoseClassSelecter, appData.get("DC"));
@@ -301,9 +345,9 @@ public class secondFrament extends Fragment {
 			case "TRA":
 				mapValue = appData.get("TRA");
 				if(AppDataStruct.FIELD_TRACE_OFF == mapValue)
-					mFieldTractSelector.setChecked(false);
+					mFieldTraceSelector.setChecked(false);
 				else if(AppDataStruct.FIELD_TRACE_ON == mapValue)
-					mFieldTractSelector.setChecked(true);
+					mFieldTraceSelector.setChecked(true);
 				break;
 			
 			case "FIE":

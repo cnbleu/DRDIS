@@ -3,13 +3,16 @@ package com.hedymed.engineer;
 
 import java.util.List;
 
+import android.app.Activity;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.hedymed.drdissys.MainActivity;
 import com.hedymed.drdissys.R;
@@ -25,6 +28,23 @@ public class EngineerActivity extends PreferenceActivity
 		
 		if (hasHeaders())
 		{
+//			Button videoButton = new Button(this);
+//			videoButton.setText(R.string.video_play_group_title);
+//			videoButton.setOnClickListener(new View.OnClickListener() {
+//				@Override
+//				public void onClick(View v) {
+//					Intent intent = new Intent(Intent.ACTION_GET_CONTENT);  
+//				    intent.setType("video/*");  
+//				    intent.addCategory(Intent.CATEGORY_OPENABLE);  
+//				    try {  
+//				        startActivityForResult(Intent.createChooser(intent, null), 2);  
+//				    } 
+//				    catch (android.content.ActivityNotFoundException ex) {  
+//				        Toast.makeText(EngineerActivity.this, "请安装文件管理器", Toast.LENGTH_SHORT).show();  
+//				    }  
+//				}
+//			});
+			
 			Button button = new Button(this);
 			button.setText(R.string.engineering_return_button_text);
 			button.setOnClickListener(new View.OnClickListener() {
@@ -35,8 +55,22 @@ public class EngineerActivity extends PreferenceActivity
 				}
 			});
 			// 将该按钮添加到该界面上
+//			setListFooter(videoButton);
 			setListFooter(button);
 		}
+	}
+	
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		if (resultCode == Activity.RESULT_OK) {  
+			Uri uri = data.getData();  
+		    Intent intent = new Intent(Intent.ACTION_VIEW);
+		    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		    intent.setDataAndType(uri, "video/*");
+		    startActivity(intent);
+		}  
+		
+		super.onActivityResult(requestCode, resultCode, data);  
 	}
 	
 	

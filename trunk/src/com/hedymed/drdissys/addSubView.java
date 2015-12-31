@@ -5,6 +5,7 @@ import java.util.Map;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -44,6 +45,7 @@ public class addSubView extends LinearLayout {
 		mAdd.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				Log.i("addSubView", mFunction + "+ button is clicked");
 				uartUtils.sendToSendThread(mFunction + '+');
 			}
 		});
@@ -51,6 +53,7 @@ public class addSubView extends LinearLayout {
 		mAdd.setOnLongClickListener(new OnLongClickListener() {
 			@Override
 			public boolean onLongClick(View v) {
+				Log.i("addSubView", mFunction + "+ button is longclicked");
 				uartUtils.sendToSendThread(mFunction + "++");
 				return true;
 			}
@@ -59,6 +62,7 @@ public class addSubView extends LinearLayout {
 		mSub.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				Log.i("addSubView", mFunction + "- button is clicked");
 				uartUtils.sendToSendThread(mFunction + '-');
 			}
 		});
@@ -66,6 +70,7 @@ public class addSubView extends LinearLayout {
 		mSub.setOnLongClickListener(new OnLongClickListener() {
 			@Override
 			public boolean onLongClick(View v) {
+				Log.i("addSubView", mFunction + "- button is longclicked");
 				uartUtils.sendToSendThread(mFunction + "--");
 				return true;
 			}
