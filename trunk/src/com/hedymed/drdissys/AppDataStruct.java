@@ -79,9 +79,12 @@ public class AppDataStruct {
 	//"NAM"
 	//"SEX"
 	//"ID"
+	//"APR"
+	static {
+		appStringData.put("APR", "h09-001");
+	}
 	
 	public static Map<String, Integer> appData = new HashMap<String, Integer>();
-	//"APR"
 	//"EMG"
 	//"AGE"
 	//"ES"

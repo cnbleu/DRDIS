@@ -4,6 +4,7 @@ import static com.hedymed.drdissys.AppDataStruct.appData;
 import static com.hedymed.drdissys.AppDataStruct.appStringData;
 
 import java.io.UnsupportedEncodingException;
+import java.lang.ref.WeakReference;
 import java.lang.reflect.Method;
 import java.util.List;
 
@@ -12,18 +13,15 @@ import android.app.ActivityManager;
 import android.app.ActivityManager.RunningServiceInfo;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
-import android.app.Service;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.res.TypedArray;
-import android.database.sqlite.SQLiteDatabase;
+import android.database.Cursor;
+import android.database.SQLException;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.IBinder;
 import android.os.Message;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -37,10 +35,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.hedymed.db.DBUtil;
-import com.hedymed.db.ExposeArgSQLHelper;
+import com.hedymed.db.SQLHelper;
 import com.hedymed.engineer.EngineerActivity;
 import com.hedymed.engineer.preferenceInterface;
-import com.hedymed.net.netRecvThread;
 import com.hedymed.uart.uartUtils;
 
 public class MainActivity extends Activity implements SharedPreferences.OnSharedPreferenceChangeListener {
@@ -76,20 +73,20 @@ public class MainActivity extends Activity implements SharedPreferences.OnShared
 	private secondFrament mSecondFra;
 	private static enumFragment mCurFragment;
 	private static int[] mBodyPicResourceIDArray;
-	public static Handler mUiHandler;
+	public MyHandler mUiHandler;
 	private boolean mSwitchFragmentEnable;
 	private uartUtils mUart;
 	public static SharedPreferences mPreferences;
 	private preferenceInterface.localIPChangelistener mLocalIPChangeListener;
-	public ExposeArgSQLHelper mExposeArgSQLHelper;
-	public SQLiteDatabase mExposeArgDatabase;
+	public SQLHelper mExposeArgSQLHelper;
 	public DBUtil mExposeArgDB;
-	private ExposeArgSQLHelper mExposeArgHelper;
+	private SQLHelper mExposeArgHelper;
 	
 	public MainActivity() {
 		mSwitchFragmentEnable = true;
 		mUart = new uartUtils(this);
-		mExposeArgHelper = new ExposeArgSQLHelper(this);
+		mExposeArgHelper = new SQLHelper(this);
+		mUiHandler = new MyHandler(this); 
 	}
 	
 	@Override
@@ -102,7 +99,6 @@ public class MainActivity extends Activity implements SharedPreferences.OnShared
 		startLogService();
 		
 		findAllWidget();
-		initHander();
 		
 		mPreferences = getSharedPreferences("com.hedymed.drdissys_preferences", Context.MODE_PRIVATE);
 		mPreferences.registerOnSharedPreferenceChangeListener(this);
@@ -276,25 +272,51 @@ public class MainActivity extends Activity implements SharedPreferences.OnShared
 		return hexArray;
 	}
 	
-	public static void sendToUiThread(String[] cmdStr) {
-		Message msg = Message.obtain(mUiHandler);
+	public void sendToUiThread(String[] cmdStr) {
+		Message msg = Message.obtain();
 		Bundle bundle = new Bundle();
 		bundle.putCharSequenceArray(UI_HANDLER_KEY, cmdStr);
 		msg.setData(bundle);
 		mUiHandler.sendMessage(msg);
 	}
 	
-	private void initHander() {
-		mUiHandler = new Handler() {
-			@Override
-			public void handleMessage(Message msg) {
-				String[] cmdString = (String[]) msg.getData().getCharSequenceArray(UI_HANDLER_KEY);
-				MVC_model_handler(cmdString);
-				MVC_view_handler(cmdString);
-				Log.i("Recv CMD", String.format("CMD is %s, ARG is %s", cmdString[0], cmdString[1]));
+	static class MyHandler extends Handler {
+        WeakReference<MainActivity> mActivity;
+
+        MyHandler(MainActivity activity) {
+                mActivity = new WeakReference<MainActivity>(activity);
+        }
+
+        @Override
+		public void handleMessage(Message msg) {
+        	MainActivity theActivity = mActivity.get();
+			String[] cmdString = (String[]) msg.getData().getCharSequenceArray(UI_HANDLER_KEY);
+			theActivity.MVC_model_handler(cmdString);
+			theActivity.MVC_view_handler(cmdString);
+			Log.i("Recv CMD", String.format("CMD is %s, ARG is %s", cmdString[0], cmdString[1]));
+		}
+}
+
+	public void initExposeArg(String APRarg) {
+		try {
+			Cursor cursor = mExposeArgHelper.getReadableDatabase().rawQuery(
+					"SELECT ID, KV, MA, MS, MAS FROM exposeARG WHERE ID = ?", new String[]{APRarg});
+			while(cursor.moveToNext()) {
+				int colCount = cursor.getColumnCount();
+				for(int j = 0; j < colCount; j++) {
+					String str = cursor.getColumnName(j);
+					if("ID".equals(str))
+						continue;
+					appData.put(str, cursor.getInt(j));
+				}
 			}
-		};
+		} catch(SQLException e) {
+			Log.i("query database", e.getMessage());
+		}
+		mMainFra.refreshFragment();
 	}
+	
+	
 	private void refreshActivity() {
 		MVC_view_handler(new String[]{"NAM", null});
 		MVC_view_handler(new String[]{"SEX", null});
@@ -325,11 +347,6 @@ public class MainActivity extends Activity implements SharedPreferences.OnShared
 				break;
 			
 			case "APR":
-				int picIndex = bodyPoseArray.getBodyPicNum(cmdAndArg[1]);
-				if(picIndex >= 0)
-					appData.put("APR", picIndex);
-				break;
-				
 			case "NAM":
 			case "SEX":
 			case "ID":
@@ -350,13 +367,6 @@ public class MainActivity extends Activity implements SharedPreferences.OnShared
 	private void MVC_view_handler(String[] cmdAndArg) {
 		try {
 			switch(cmdAndArg[0]) {
-//			case "PIC":
-//				Intent intent = new Intent().setClassName(MainActivity.this, "com.hedymed.drdissys.disPictureActivity");
-//				//Bundle bundle = new Bundle()
-//				//intent.putExtras(extras);
-//				startActivity(intent);
-//				break;
-				
 			case "NAM":
 				try {
 					if(appStringData.get("NAM") != null) {
@@ -391,7 +401,12 @@ public class MainActivity extends Activity implements SharedPreferences.OnShared
 //				break;
 				
 			case "APR":
-				mBodyPicture.setImageResource(mBodyPicResourceIDArray[appData.get("APR")]);
+				String APRarg = appStringData.get("APR");
+				int picIndex = bodyPoseArray.getBodyPicNum(APRarg);
+				if(picIndex >= 0) {
+					mBodyPicture.setImageResource(mBodyPicResourceIDArray[picIndex]);
+					initExposeArg(APRarg);
+				}
 				break;
 				
 			case "AGE":

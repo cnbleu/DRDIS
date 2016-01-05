@@ -162,17 +162,17 @@ public class log extends Service {
 		    Log.d(TAG, "we have the READ_LOGS permission already!");
 		
 		//////////////
-		new Thread(new Runnable() {  
-			  
-            @Override  
-            public void run() {  
-                while (debugThreadRun) {  
-                    SystemClock.sleep(1000);  
-                    count++;  
-                    Log.i(TAG, "LogService runnable : " + count);  
-                }  
-            }  
-        }).start();  
+//		new Thread(new Runnable() {  
+//			  
+//            @Override  
+//            public void run() {  
+//                while (debugThreadRun) {  
+//                    SystemClock.sleep(1000);  
+//                    count++;  
+//                    Log.i(TAG, "LogService runnable : " + count);  
+//                }  
+//            }  
+//        }).start();  
 	}
 
 	private void register() {

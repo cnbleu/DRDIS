@@ -25,7 +25,7 @@
                 android:layout_height="match_parent"
                 android:layout_marginLeft="22dp"
                 android:layout_marginTop="8dp"
-                android:src="@drawable/h01_001"
+                android:src="@drawable/h09_001"
                 android:scaleType="centerInside" />
         </FrameLayout>
 

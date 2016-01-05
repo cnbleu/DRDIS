@@ -196,7 +196,7 @@ public class uartUtils {
 	            } 
 			} else {//接收到非应答命令
 				if(cmdAndArg[1].matches("(?<=^)([a-z0-9]+(-[a-z0-9]+)?|[+-][0-9]{1,3})$")) {//参数检查正确
-					MainActivity.sendToUiThread(cmdAndArg);
+					mMainActivity.sendToUiThread(cmdAndArg);
 					sendToSendThread(cmdAndArg[0] + cmdAndArg[1], ACK_FLAG);
 				} else
 					uartUtils.sendToSendThread("ER???");
