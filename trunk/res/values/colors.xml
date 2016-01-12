@@ -10,4 +10,9 @@
     <color name="blue_color">#0000FF</color>
     <color name="green_color">#00FF00</color>
     <color name="white_color">#FFFFFF</color>
+    
+    <color name="subscribe_item_pressed_stroke">#ffcdcdcd</color>
+    <color name="subscribe_item_pressed_bg">#ff1b5b8d</color>
+    <color name="subscribe_item_normal_stroke">#ff222e3c</color>
+    <color name="subscribe_item_normal_bg">#ff2d3e50</color>
 </resources>

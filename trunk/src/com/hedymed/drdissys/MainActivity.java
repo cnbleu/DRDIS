@@ -1,7 +1,7 @@
 package com.hedymed.drdissys;
 
-import static com.hedymed.drdissys.AppDataStruct.appData;
-import static com.hedymed.drdissys.AppDataStruct.appStringData;
+import static com.hedymed.db.AppDataStruct.appData;
+import static com.hedymed.db.AppDataStruct.appStringData;
 
 import java.io.UnsupportedEncodingException;
 import java.lang.ref.WeakReference;
@@ -11,8 +11,9 @@ import java.util.List;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningServiceInfo;
-import android.app.Fragment;
-import android.app.FragmentTransaction;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentTransaction;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -23,9 +24,11 @@ import android.database.SQLException;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v4.view.PagerAdapter;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 import android.view.Window;
 import android.widget.Button;
@@ -33,14 +36,22 @@ import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ImageView.ScaleType;
 
+import com.hedymed.db.AppDataStruct;
 import com.hedymed.db.DBUtil;
 import com.hedymed.db.SQLHelper;
+import com.hedymed.db.bodyPoseArray;
 import com.hedymed.engineer.EngineerActivity;
 import com.hedymed.engineer.preferenceInterface;
+import com.hedymed.fragment.MyFragmentPagerAdapter;
+import com.hedymed.fragment.fragmentViewPager;
+import com.hedymed.fragment.mainFragment;
+import com.hedymed.fragment.secondFrament;
+import com.hedymed.fragment.thirdFragment;
 import com.hedymed.uart.uartUtils;
 
-public class MainActivity extends Activity implements SharedPreferences.OnSharedPreferenceChangeListener {
+public class MainActivity extends FragmentActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
 	private static final int[] parityFlag = { 'n', 'o', 'e', 'm', 's' };
 	private static final String PACK_UP_METHOD = "onDetachedFromWindow";//Spinner类中protected类型的方法，其作用是使其下拉菜单隐藏。
 	public static final String UI_HANDLER_KEY = "ui_hander_key";
@@ -69,21 +80,21 @@ public class MainActivity extends Activity implements SharedPreferences.OnShared
 	private TextView mThermalText;
 	private Button mHelpButton;
 	
-	private mainFragment mMainFra;
-	private secondFrament mSecondFra;
+	public mainFragment mMainFra;
+	public secondFrament mSecondFra;
+	public thirdFragment mThirdFra;
 	private static enumFragment mCurFragment;
 	private static int[] mBodyPicResourceIDArray;
 	public MyHandler mUiHandler;
-	private boolean mSwitchFragmentEnable;
 	private uartUtils mUart;
 	public static SharedPreferences mPreferences;
 	private preferenceInterface.localIPChangelistener mLocalIPChangeListener;
 	public SQLHelper mExposeArgSQLHelper;
 	public DBUtil mExposeArgDB;
 	private SQLHelper mExposeArgHelper;
+	private fragmentViewPager mViewPager;
 	
 	public MainActivity() {
-		mSwitchFragmentEnable = true;
 		mUart = new uartUtils(this);
 		mExposeArgHelper = new SQLHelper(this);
 		mUiHandler = new MyHandler(this); 
@@ -94,11 +105,14 @@ public class MainActivity extends Activity implements SharedPreferences.OnShared
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.activity_main);
+		
 		mExposeArgDB = DBUtil.getInstance(mExposeArgHelper.getReadableDatabase());
 		//start Log Service
 		startLogService();
 		
 		findAllWidget();
+		initFragmentViewPager();
+		getFragmentInAdapter();
 		
 		mPreferences = getSharedPreferences("com.hedymed.drdissys_preferences", Context.MODE_PRIVATE);
 		mPreferences.registerOnSharedPreferenceChangeListener(this);
@@ -108,32 +122,6 @@ public class MainActivity extends Activity implements SharedPreferences.OnShared
 		
 		if(mBodyPicResourceIDArray == null)
 			mBodyPicResourceIDArray = findBodyPosPicArray();
-		
-		FragmentTransaction ft = getFragmentManager().beginTransaction();
-		if(savedInstanceState != null) {
-			mMainFra = (mainFragment) getFragmentManager().findFragmentByTag("mainFragment");
-			mSecondFra = (secondFrament) getFragmentManager().findFragmentByTag("secondFragment");
-			
-			if(mSecondFra !=null) {
-				if(mCurFragment == enumFragment.MAIN_FRA)
-					ft.hide(mSecondFra).commit();
-			}
-			
-			if(mMainFra != null) {
-				if(mCurFragment == enumFragment.SECOND_FRA)
-					ft.hide(mMainFra).commit();
-			}
-			
-			refreshActivity();
-		} else {
-			mMainFra = new mainFragment();	
-			mSecondFra = new secondFrament();
-			mCurFragment = enumFragment.MAIN_FRA;
-			
-			ft.add(R.id.fragment_frame, mSecondFra, "secondFragment");
-			ft.hide(mSecondFra).add(R.id.fragment_frame, mMainFra, "mainFragment");
-			ft.commit();
-		}
 		
 //		new netRecvThread(this, "netRecvThread").start();
 	}
@@ -155,6 +143,18 @@ public class MainActivity extends Activity implements SharedPreferences.OnShared
 		super.onDestroy();
 		mUart.uartClose();
 		mExposeArgHelper.close();
+	}
+	
+	private void initFragmentViewPager() {
+		mViewPager.setPageMargin(20);
+		mViewPager.setAdapter(MyFragmentPagerAdapter.getInstance(getSupportFragmentManager(), mViewPager));
+	}
+	
+	private void getFragmentInAdapter() {
+		MyFragmentPagerAdapter adapter = MyFragmentPagerAdapter.getInstance(getSupportFragmentManager(), mViewPager);
+		mMainFra = adapter.getMainFragment();
+		mSecondFra = adapter.getSecondFragment();
+		mThirdFra = adapter.getThirdFragment();
 	}
 	
 	public boolean isServiceRunning(String serviceName) {
@@ -207,48 +207,19 @@ public class MainActivity extends Activity implements SharedPreferences.OnShared
 		return true;
 	}
 		
-	public void FragmentSlip(boolean direction) {
-		if(mSwitchFragmentEnable) {
-			mSwitchFragmentEnable = false;
-			if(mCurFragment == enumFragment.MAIN_FRA) { // switch to second Fragment
-				mCurFragment = enumFragment.SECOND_FRA;
-				switchFragment(mMainFra, mSecondFra, "secondFragment", direction);
-//				mPageSwitchPic.setImageResource(R.drawable.page_2);
-			} else {// switch to main Fragment
-				mCurFragment = enumFragment.MAIN_FRA;
-				switchFragment(mSecondFra, mMainFra, "mainFragment", direction);
-//				mPageSwitchPic.setImageResource(R.drawable.page_1);
-			}
-		}
-	}
 	
-	private void switchFragment(Fragment from, Fragment to, String tag, boolean SlipDirectionRight) {
-        if (from != to) {
-            FragmentTransaction transaction = getFragmentManager().beginTransaction();
-            
-            if(SlipDirectionRight)
-            	transaction.setCustomAnimations(R.animator.fragment_slide_in_left, R.animator.fragment_slide_out_right); 
-            else
-            	transaction.setCustomAnimations(R.animator.fragment_slide_in_right, R.animator.fragment_slide_out_left); 
-            
-            if (!to.isAdded()) {    // 先判断是否被add过
-                transaction.hide(from).add(R.id.fragment_frame, to, tag).commit(); // 隐藏当前的fragment，add下一个到Activity中
-            } else {
-                transaction.hide(from).show(to).commit(); // 隐藏当前的fragment，显示下一个
-            }
-        }
-    }
-	
-	public void switchPageDot(String fragmentTag) {
-		if("mainFragment".equals(fragmentTag))
+	public void setPageDot(int position) {
+		if(position == 0)
 			mPageSwitchPic.setImageResource(R.drawable.page_1);
-		else if("secondFragment".equals(fragmentTag))
+		else if(position == 1)
 			mPageSwitchPic.setImageResource(R.drawable.page_2);
+		else if(position == 2)
+			mPageSwitchPic.setImageResource(R.drawable.page_3);
 	}
 	
-	public void setSwitchFragmentEnable(boolean enableFlag) {
-		mSwitchFragmentEnable = enableFlag;
-	}
+//	public void setSwitchFragmentEnable(boolean enableFlag) {
+//		mSwitchFragmentEnable = enableFlag;
+//	}
 	
 	private int[] findBodyPosPicArray(){
 		TypedArray ar = this.getResources().obtainTypedArray(R.array.body_pose_pic);
@@ -438,22 +409,22 @@ public class MainActivity extends Activity implements SharedPreferences.OnShared
 				mapValue = appData.get("FPD");
 				if(mapValue < 0x10) {//未插到位
 					if(AppDataStruct.FPD_WS_H_INSERT == (mapValue & 0x0F))
-						mFpdDirection.setImageResource(R.drawable.fpd_direction_land_yellow);//WS 横插
+						mFpdDirection.setImageResource(R.drawable.fpd_ws_land_yellow);//WS 横插
 					else if(AppDataStruct.FPD_WS_V_INSERT == (mapValue & 0x0F))
-						mFpdDirection.setImageResource(R.drawable.fpd_direction_land_yellow);//WS 竖插
+						mFpdDirection.setImageResource(R.drawable.fpd_ws_port_yellow);//WS 竖插
 					else if(AppDataStruct.FPD_FT_H_INSERT == (mapValue & 0x0F))
-						mFpdDirection.setImageResource(R.drawable.fpd_direction_stand_yellow);//FT 横插
+						mFpdDirection.setImageResource(R.drawable.fpd_ft_land_yellow);//FT 横插
 					else if(AppDataStruct.FPD_FT_V_INSERT == (mapValue & 0x0F))
-						mFpdDirection.setImageResource(R.drawable.fpd_direction_stand_yellow);//FT 竖插
+						mFpdDirection.setImageResource(R.drawable.fpd_ft_port_yellow);//FT 竖插
 				} else {
 					if(AppDataStruct.FPD_WS_H_INSERT == (mapValue & 0x0F))
-						mFpdDirection.setImageResource(R.drawable.fpd_direction_land);//WS 横插
+						mFpdDirection.setImageResource(R.drawable.fpd_ws_land);//WS 横插
 					else if(AppDataStruct.FPD_WS_V_INSERT == (mapValue & 0x0F))
-						mFpdDirection.setImageResource(R.drawable.fpd_direction_land);//WS 竖插
+						mFpdDirection.setImageResource(R.drawable.fpd_ws_port);//WS 竖插
 					else if(AppDataStruct.FPD_FT_H_INSERT == (mapValue & 0x0F))
-						mFpdDirection.setImageResource(R.drawable.fpd_direction_stand);//FT 横插
+						mFpdDirection.setImageResource(R.drawable.fpd_ft_land);//FT 横插
 					else if(AppDataStruct.FPD_FT_V_INSERT == (mapValue & 0x0F))
-						mFpdDirection.setImageResource(R.drawable.fpd_direction_stand);//FT 竖插
+						mFpdDirection.setImageResource(R.drawable.fpd_ft_port);//FT 竖插
 				}
 				break;
 				
@@ -546,6 +517,7 @@ public class MainActivity extends Activity implements SharedPreferences.OnShared
 		mAlignmentStatusPic = (ImageView)findViewById(R.id.alignment_status_pic);
 		mFpdDirection = (ImageView)findViewById(R.id.fpd_direction);
 		mThermalPicture = (ImageView)findViewById(R.id.thermal_picture);
+		mViewPager = (fragmentViewPager)findViewById(R.id.fragment_viewpager);
 		
 		mRhaText = (TextView)findViewById(R.id.rha_text);
 		mRvaText = (TextView)findViewById(R.id.rva_text);

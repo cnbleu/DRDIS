@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector
+  xmlns:android="http://schemas.android.com/apk/res/android">
+
+	<item android:state_pressed="true">
+        <shape>
+            <stroke android:width="0.5dip" android:color="@color/subscribe_item_pressed_stroke" />
+            <corners android:radius="10dp" />
+            <solid android:color="@color/subscribe_item_pressed_bg" />
+        </shape>
+    </item>
+    <item>
+        <shape>
+            <stroke android:width="0.5dip" android:color="@color/subscribe_item_normal_stroke" />
+            <corners android:radius="10dp" />
+            <solid android:color="@color/subscribe_item_normal_bg" />
+        </shape>
+    </item>
+</selector>

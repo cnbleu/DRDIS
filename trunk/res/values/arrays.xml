@@ -22,6 +22,12 @@
         <item>中</item>
         <item>瘦</item>
     </string-array>
+     <string-array name="sample_mode_string_array">
+        <item>摄影床</item>
+        <item>胸片架</item>
+        <item>自由平板</item>
+        <item>自由片盒</item>
+    </string-array>
     
     <string-array name="rotation_angle_list">
 		<item>90°</item>

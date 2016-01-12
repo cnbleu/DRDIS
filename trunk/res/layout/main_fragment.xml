@@ -1,4 +1,4 @@
-<com.hedymed.drdissys.custom_event_lineLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical" 
@@ -87,29 +87,29 @@
         android:layout_marginTop="77dp"
         android:orientation="horizontal" >
 
-        <com.hedymed.drdissys.addSubView
+        <com.hedymed.pieces.addSubView
             android:id="@+id/hvg_voltage"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_marginLeft="20dp" />
 
-        <com.hedymed.drdissys.addSubView
+        <com.hedymed.pieces.addSubView
             android:id="@+id/hvg_current"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_marginLeft="20dp" />
 
-        <com.hedymed.drdissys.addSubView
+        <com.hedymed.pieces.addSubView
             android:id="@+id/hvg_mas"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_marginLeft="20dp" />
 
-        <com.hedymed.drdissys.addSubView
+        <com.hedymed.pieces.addSubView
             android:id="@+id/hvg_ms"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_marginLeft="20dp" />
     </LinearLayout>
 
-</com.hedymed.drdissys.custom_event_lineLayout>
+</LinearLayout>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="drop_down_background">#213141</color>
+    <color name="text_white_color">#FFFFFF</color>
+    <color name="cur_pos_background">#FF0000</color>
+    <color name="spinner_dis_color">#00FF00</color>
+    
+    <color name="Transparent_color">#00000000</color>
+    <color name="red_color">#FF0000</color>
+    <color name="blue_color">#0000FF</color>
+    <color name="green_color">#00FF00</color>
+    <color name="white_color">#FFFFFF</color>
+</resources>

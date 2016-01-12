@@ -78,21 +78,21 @@
         </LinearLayout>
     </LinearLayout>
 
-    <FrameLayout
-        android:id="@+id/fragment_frame"
+    <com.hedymed.fragment.fragmentViewPager
+        android:id="@+id/fragment_viewpager"
         android:layout_width="1006dp"
         android:layout_height="758dp"
         android:layout_below="@id/linearLayout1"
         android:layout_marginLeft="17dp"
         android:layout_marginTop="1dp" >
-    </FrameLayout>
+    </com.hedymed.fragment.fragmentViewPager>
 
     <ImageView
         android:id="@+id/page_switch_pic"
         android:layout_width="48dp"
         android:layout_height="23dp"
         android:layout_alignParentRight="true"
-        android:layout_below="@id/fragment_frame"
+        android:layout_below="@id/fragment_viewpager"
         android:layout_marginRight="80dp"
         android:layout_marginTop="8dp"
         android:src="@drawable/page_1" />
@@ -140,7 +140,7 @@
             android:layout_alignParentLeft="true"
             android:layout_marginLeft="221dp"
             android:layout_centerVertical="true"
-            android:src="@drawable/fpd_direction_land" />
+            android:src="@drawable/fpd_ws_land" />
 
         <TextView
             android:id="@+id/rha_text"

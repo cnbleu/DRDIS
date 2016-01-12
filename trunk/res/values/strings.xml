@@ -4,6 +4,8 @@
     <string name="app_name">DRdisSys</string>
     <string name="hello_world">Hello world!</string>
 	<string name="field_trace_string">射野跟踪</string>
+	<string name="reset_button_string">重置</string>
+	<string name="move_follow_string">随动指示</string>
 	<string name="send_data_format_error">发送数据格式错误</string>
 	<string name="grid_mateial_al">铝</string>
 	<string name="grid_mateial_carbon">碳</string>
