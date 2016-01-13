@@ -4,6 +4,7 @@ import static com.hedymed.db.AppDataStruct.FOCUS_BIG;
 import static com.hedymed.db.AppDataStruct.FOCUS_SMALL;
 import static com.hedymed.db.AppDataStruct.appData;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -59,6 +60,7 @@ public class mainFragment extends Fragment {
 	
 	
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+		Log.i("mainFragment", "in onCreateView");
 		if(rootView == null) {
 			rootView = inflater.inflate(R.layout.main_fragment, container, false);
 			mHVGVolatge = (addSubView) rootView.findViewById(R.id.hvg_voltage);
@@ -92,8 +94,15 @@ public class mainFragment extends Fragment {
 	@Override
 	public void onResume() {
 		super.onResume();
+		Log.i("mainFragment", "in onResume" + getActivity().toString());
 	}
 	
+	@Override
+	public void onDetach() {
+		// TODO Auto-generated method stub
+		super.onDetach();
+		Log.i("mainFragment", "in onDetach");
+	}
 
 	private void setAddSubViewEnable(int mode){
 		switch(mode){

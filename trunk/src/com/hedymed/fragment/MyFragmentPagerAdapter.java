@@ -5,13 +5,12 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
 public class MyFragmentPagerAdapter extends FragmentPagerAdapter {
-	private static MyFragmentPagerAdapter mFragmentPagerAdapter;
 	private fragmentViewPager mViewPager;
 	private mainFragment mMainFragment;
 	private secondFrament mSecondFragment;
 	private thirdFragment mThirdFragment;
 	
-	private MyFragmentPagerAdapter(FragmentManager fm, fragmentViewPager viewPager) {
+	public MyFragmentPagerAdapter(FragmentManager fm, fragmentViewPager viewPager) {
 		super(fm);
 		mViewPager = viewPager;
 		
@@ -23,15 +22,6 @@ public class MyFragmentPagerAdapter extends FragmentPagerAdapter {
 		mViewPager.setObjectForPosition(mSecondFragment, 1);
 		mViewPager.setObjectForPosition(mThirdFragment, 2);
     }
-
-	public static MyFragmentPagerAdapter getInstance(FragmentManager fm, fragmentViewPager viewPager) {
-		if(mFragmentPagerAdapter != null)
-			return mFragmentPagerAdapter;
-		else {
-			mFragmentPagerAdapter = new MyFragmentPagerAdapter(fm, viewPager);
-			return mFragmentPagerAdapter;
-		}
-	}
 	
 	public mainFragment getMainFragment() {
 		return mMainFragment;

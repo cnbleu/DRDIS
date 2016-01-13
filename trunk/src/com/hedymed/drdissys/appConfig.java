@@ -14,5 +14,5 @@ final public class appConfig {
 	public static final int UART_CIRCLE_BUFFER_SIZE = 128;
 	public static final String UART_SUPPORT_CMD = "AEC;APR;CM;AG;BOD;POS;DC;EC;ET;FOC;SID;SOD;AS;"
 								+ "FIE;TRA;KV;MA;MS;MAS;NAM;SEX;ID;AGE;RHA;RVA;AI;EMG;ES;TC;ER;"
-								+ "GRID;GRID_SID;GRID_RATE;GRID_MATERIAL;FPD;ANG";
+								+ "GRID;GRID_SID;GRID_RATE;GRID_MATERIAL;FPD;ANG;SMOD;FILT;FOLL";
 }

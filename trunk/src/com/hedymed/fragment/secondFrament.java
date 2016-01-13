@@ -5,6 +5,7 @@ import static com.hedymed.db.AppDataStruct.ALIGN_MID;
 import static com.hedymed.db.AppDataStruct.ALIGN_TOP;
 import static com.hedymed.db.AppDataStruct.appData;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -60,7 +61,10 @@ public class secondFrament extends Fragment {
 //		setRetainInstance(true);
 	}
 	
-	
+	@Override
+	public void onSaveInstanceState(Bundle outState) {
+		// TODO Auto-generated method stub
+	}
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {

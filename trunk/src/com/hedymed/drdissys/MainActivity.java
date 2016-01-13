@@ -11,9 +11,6 @@ import java.util.List;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningServiceInfo;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentTransaction;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -21,14 +18,14 @@ import android.content.pm.ActivityInfo;
 import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.database.SQLException;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.support.v4.view.PagerAdapter;
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 import android.view.Window;
 import android.widget.Button;
@@ -36,7 +33,6 @@ import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.ImageView.ScaleType;
 
 import com.hedymed.db.AppDataStruct;
 import com.hedymed.db.DBUtil;
@@ -83,7 +79,6 @@ public class MainActivity extends FragmentActivity implements SharedPreferences.
 	public mainFragment mMainFra;
 	public secondFrament mSecondFra;
 	public thirdFragment mThirdFra;
-	private static enumFragment mCurFragment;
 	private static int[] mBodyPicResourceIDArray;
 	public MyHandler mUiHandler;
 	private uartUtils mUart;
@@ -103,6 +98,7 @@ public class MainActivity extends FragmentActivity implements SharedPreferences.
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		Log.i("mainActivity", "in onCreate");
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.activity_main);
 		
@@ -112,7 +108,6 @@ public class MainActivity extends FragmentActivity implements SharedPreferences.
 		
 		findAllWidget();
 		initFragmentViewPager();
-		getFragmentInAdapter();
 		
 		mPreferences = getSharedPreferences("com.hedymed.drdissys_preferences", Context.MODE_PRIVATE);
 		mPreferences.registerOnSharedPreferenceChangeListener(this);
@@ -123,6 +118,7 @@ public class MainActivity extends FragmentActivity implements SharedPreferences.
 		if(mBodyPicResourceIDArray == null)
 			mBodyPicResourceIDArray = findBodyPosPicArray();
 		
+		refreshActivity();
 //		new netRecvThread(this, "netRecvThread").start();
 	}
 	
@@ -143,19 +139,33 @@ public class MainActivity extends FragmentActivity implements SharedPreferences.
 		super.onDestroy();
 		mUart.uartClose();
 		mExposeArgHelper.close();
+		Log.i("mainActivity", "in onDestroy");
 	}
+	
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		if (resultCode == Activity.RESULT_OK) {  
+			if(requestCode == thirdFragment.VIDEO_REQUEST_CODE){
+				Uri uri = data.getData();  
+			    Intent intent = new Intent(Intent.ACTION_VIEW);
+			    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+			    intent.setDataAndType(uri, "video/*");
+			    startActivity(intent);
+			}
+		}  
+		super.onActivityResult(requestCode, resultCode, data);  
+	}
+	
 	
 	private void initFragmentViewPager() {
 		mViewPager.setPageMargin(20);
-		mViewPager.setAdapter(MyFragmentPagerAdapter.getInstance(getSupportFragmentManager(), mViewPager));
-	}
-	
-	private void getFragmentInAdapter() {
-		MyFragmentPagerAdapter adapter = MyFragmentPagerAdapter.getInstance(getSupportFragmentManager(), mViewPager);
+		MyFragmentPagerAdapter adapter = new MyFragmentPagerAdapter(getSupportFragmentManager(), mViewPager);
+		mViewPager.setAdapter(adapter);
 		mMainFra = adapter.getMainFragment();
 		mSecondFra = adapter.getSecondFragment();
 		mThirdFra = adapter.getThirdFragment();
 	}
+	
 	
 	public boolean isServiceRunning(String serviceName) {
 		ActivityManager am =  (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
@@ -477,6 +487,7 @@ public class MainActivity extends FragmentActivity implements SharedPreferences.
 			default:
 				mMainFra.MVC_control_handler(cmdAndArg);
 				mSecondFra.MVC_control_handler(cmdAndArg);
+				mThirdFra.MVC_control_handler(cmdAndArg);
 				break;
 			}
 		} catch (NumberFormatException e) {

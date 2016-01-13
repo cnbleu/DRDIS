@@ -13,6 +13,6 @@
     
     <color name="subscribe_item_pressed_stroke">#ffcdcdcd</color>
     <color name="subscribe_item_pressed_bg">#ff1b5b8d</color>
-    <color name="subscribe_item_normal_stroke">#ff222e3c</color>
+    <color name="subscribe_item_normal_stroke">#ff6d8aa4</color>
     <color name="subscribe_item_normal_bg">#ff2d3e50</color>
 </resources>

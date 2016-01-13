@@ -5,6 +5,7 @@ import java.util.LinkedHashMap;
 
 import android.content.Context;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -35,13 +36,13 @@ public class fragmentViewPager extends ViewPager {
 		
 		mLeft = findViewFromObject(position);
 		mRight = findViewFromObject(position + 1);
-		animateStack(mLeft, mRight, effectOffset, positionOffsetPixels);
+//		animateStack(mLeft, mRight, effectOffset, positionOffsetPixels);
 		if(mContext instanceof MainActivity)
 			((MainActivity)mContext).setPageDot(getCurrentItem());
 		
 		super.onPageScrolled(position, positionOffset, positionOffsetPixels);
 	}
-
+	 
 	public void setObjectForPosition(Fragment fragment, int position)
 	{
 		mChildrenViews.put(position, fragment);

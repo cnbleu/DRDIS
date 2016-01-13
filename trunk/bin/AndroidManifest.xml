@@ -39,10 +39,6 @@
             android:name="com.hedymed.engineer.EngineerActivity">
         </activity>
         
-        <activity 
-            android:name="com.hedymed.drdissys.videoPlayActivity">
-        </activity>
-        
         <receiver android:name=".autoStart">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>
