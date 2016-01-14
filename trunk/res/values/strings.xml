@@ -34,5 +34,6 @@
 	<string name="rotation_angle_dialog_title">"旋转角度"</string>
 	
 	<string name="video_play_group_title">"视频播放"</string>
+	<string name="popup_window_text">"曝光中"</string>
 	
 </resources>

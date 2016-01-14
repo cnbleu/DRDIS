@@ -45,6 +45,7 @@ import com.hedymed.fragment.fragmentViewPager;
 import com.hedymed.fragment.mainFragment;
 import com.hedymed.fragment.secondFrament;
 import com.hedymed.fragment.thirdFragment;
+import com.hedymed.pieces.MyPopupWindow;
 import com.hedymed.uart.uartUtils;
 
 public class MainActivity extends FragmentActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
@@ -88,6 +89,7 @@ public class MainActivity extends FragmentActivity implements SharedPreferences.
 	public DBUtil mExposeArgDB;
 	private SQLHelper mExposeArgHelper;
 	private fragmentViewPager mViewPager;
+	private MyPopupWindow mPopupWindow;
 	
 	public MainActivity() {
 		mUart = new uartUtils(this);
@@ -111,6 +113,7 @@ public class MainActivity extends FragmentActivity implements SharedPreferences.
 		
 		mPreferences = getSharedPreferences("com.hedymed.drdissys_preferences", Context.MODE_PRIVATE);
 		mPreferences.registerOnSharedPreferenceChangeListener(this);
+		mPopupWindow = new MyPopupWindow(this);
 		
 		//´ò¿ª´®¿Ú 8O1, 115200bps
 		mUart.uartOpen(0, 115200, 8, 1, parityFlag[1]);
@@ -398,12 +401,16 @@ public class MainActivity extends FragmentActivity implements SharedPreferences.
 				int mapValue = appData.get("ES");
 				if(mapValue == AppDataStruct.expose_status.DISABLE_EXPOSE.ordinal())
 					mExpouseStatusPic.setImageResource(R.drawable.expose_disable_pic);
-				else if(mapValue == AppDataStruct.expose_status.ENABLE_EXPOSE.ordinal())
+				else if(mapValue == AppDataStruct.expose_status.ENABLE_EXPOSE.ordinal()) {
 					mExpouseStatusPic.setImageResource(R.drawable.expose_enable_pic);
+					mPopupWindow.dismiss();
+				}
 				else if(mapValue == AppDataStruct.expose_status.PREP_PHASE.ordinal())
 					mExpouseStatusPic.setImageResource(R.drawable.expose_prep_pic);
-				else if(mapValue == AppDataStruct.expose_status.EXPOSE_PHASE.ordinal())
+				else if(mapValue == AppDataStruct.expose_status.EXPOSE_PHASE.ordinal()) {
 					mExpouseStatusPic.setImageResource(R.drawable.exposing_pic);
+					mPopupWindow.show();
+				}
 				
 				break;
 			

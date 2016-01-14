@@ -4,14 +4,11 @@ import static com.hedymed.db.AppDataStruct.FOCUS_BIG;
 import static com.hedymed.db.AppDataStruct.FOCUS_SMALL;
 import static com.hedymed.db.AppDataStruct.appData;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import android.animation.Animator;
-import android.animation.AnimatorInflater;
 import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -19,7 +16,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.CompoundButton;
