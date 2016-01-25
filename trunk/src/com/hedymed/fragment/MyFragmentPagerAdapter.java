@@ -1,47 +1,44 @@
 package com.hedymed.fragment;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
 public class MyFragmentPagerAdapter extends FragmentPagerAdapter {
-	private fragmentViewPager mViewPager;
+	private static MyFragmentPagerAdapter mAdapter;
 	private mainFragment mMainFragment;
 	private secondFrament mSecondFragment;
 	private thirdFragment mThirdFragment;
+	private List<Fragment> mChildrenViews = new ArrayList<Fragment>();
 	
-	public MyFragmentPagerAdapter(FragmentManager fm, fragmentViewPager viewPager) {
+	public MyFragmentPagerAdapter(FragmentManager fm) {
 		super(fm);
-		mViewPager = viewPager;
-		
 		mMainFragment = new mainFragment();	
 		mSecondFragment = new secondFrament();
 		mThirdFragment = new thirdFragment();
 		
-		mViewPager.setObjectForPosition(mMainFragment, 0);
-		mViewPager.setObjectForPosition(mSecondFragment, 1);
-		mViewPager.setObjectForPosition(mThirdFragment, 2);
+		mChildrenViews.add(mMainFragment);
+		mChildrenViews.add(mSecondFragment);
+		mChildrenViews.add(mThirdFragment);
     }
 	
-	public mainFragment getMainFragment() {
-		return mMainFragment;
-	}
-	
-	public secondFrament getSecondFragment() {
-		return mSecondFragment;
-	}
-	
-	public thirdFragment getThirdFragment() {
-		return mThirdFragment;
+	public static MyFragmentPagerAdapter getInstance(FragmentManager fm) {
+		if(mAdapter == null)
+			mAdapter = new MyFragmentPagerAdapter(fm);
+		
+		return mAdapter;
 	}
 	
     @Override
     public int getCount() {
-        return mViewPager.getObjectNum();
+        return mChildrenViews.size();
     }
 
     @Override
-    public Fragment getItem(int arg0) {
-    	return mViewPager.findViewFromObject(arg0);
+    public Fragment getItem(int position) {
+    	return mChildrenViews.get(position);
     }
 }

@@ -8,7 +8,10 @@ import java.util.List;
 import java.util.Map;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -31,9 +34,12 @@ import com.hedymed.drdissys.R;
 import com.hedymed.uart.uartUtils;
 
 public class thirdFragment extends Fragment{
+	public static final String TAG = "thirdFragment";
+	public static final String RECEIVER_ACTION = "com.hedymed.drdissys.thirdFragment.recvData";
 	public static final int VIDEO_REQUEST_CODE = 3;
 	public static final int MOVE_FOLLOW_OFF = 0;
 	public static final int MOVE_FOLLOW_ON = 1;
+	public static final int FREE_BOX_MODE = 3;
 	
 	private ToggleButton mMoveFollow;
 	private Spinner mSampleMode;
@@ -42,15 +48,13 @@ public class thirdFragment extends Fragment{
 	//skip do something in OnItemSelectedListener when Spinner instancing
 	private Boolean mSampleModeFlag, mFilterselecterFlag;
 	private View mRootView;
+	private thirdFragmentReceiver mReceiver;
 	
-	@Override
-	public void onAttach(Activity activity) {
-		super.onAttach(activity);
-	}
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		registerMainFragmentReceiver();
 //		setRetainInstance(true);
 	}
 	
@@ -71,6 +75,7 @@ public class thirdFragment extends Fragment{
 			setSampleModeSpinner();
 			setFilterLevelSpinner();
 			registerEventMonitor();
+			refreshFragment();
 		}
 		
 		return mRootView;
@@ -81,6 +86,11 @@ public class thirdFragment extends Fragment{
 		super.onResume();
 	}
 	
+	@Override
+	public void onDetach() {
+		super.onDetach();
+		getActivity().unregisterReceiver(mReceiver);
+	}
 	
 	private void registerEventMonitor(){
 		mSampleMode.setOnItemSelectedListener(new customSpinnerListener());
@@ -139,8 +149,18 @@ public class thirdFragment extends Fragment{
 					mSampleModeFlag = true;
 				else {
 					Log.i("thirdFragment", String.format("mSampleMode selected position is %d", position));
+					if(curPosition == FREE_BOX_MODE) {
+						appData.put("ASENABLE", 0);
+						appData.put("AECENABLE", 0);
+					} else {
+						appData.put("ASENABLE", 1);
+						appData.put("AECENABLE", 1);
+					}
+					sendRefreshBroadcast(secondFrament.RECEIVER_ACTION);
+					
 					if(appData.get("SMOD") != curPosition) {
 						appData.put("SMOD", curPosition);
+						
 						uartUtils.sendToSendThread("SMOD" + position);
 					}
 				}
@@ -163,6 +183,37 @@ public class thirdFragment extends Fragment{
 		}
 	}
 	
+	private void sendRefreshBroadcast(String action) {
+		Intent intent = new Intent();
+		intent.setAction(action);
+		Bundle bundle = new Bundle();
+		bundle.putString("action", "refresh");
+		intent.putExtras(bundle);
+		getActivity().sendBroadcast(intent);
+	}
+	
+	public void registerMainFragmentReceiver() {
+		IntentFilter filter = new IntentFilter(RECEIVER_ACTION);
+		mReceiver = new thirdFragmentReceiver();
+		getActivity().registerReceiver(mReceiver, filter);
+	}
+	
+	public class thirdFragmentReceiver extends BroadcastReceiver 
+	{
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			Bundle bundle = intent.getExtras();
+			switch((String)bundle.getCharSequence("action")) {
+			case "refresh":
+				refreshFragment();
+				break;
+			case "uartCMD":
+				MVC_control_handler((String)bundle.getCharSequence("cmd"));
+				break;
+			}
+		}
+	}
+	
 	//for initialize when parse configure xml.
 	public void refreshFragment() {
 		try {
@@ -180,15 +231,15 @@ public class thirdFragment extends Fragment{
 		}
 	}
 	
-	public void MVC_control_handler(String[] cmdAndArg) {
+	public void MVC_control_handler(String cmd) {
 //		if(isVisible())
-			MVC_view_handler(cmdAndArg);
+			MVC_view_handler(cmd);
 	}
 	
-	private void MVC_view_handler(String[] cmdAndArg) {
+	private void MVC_view_handler(String cmd) {
 		try{
 			int mapValue;
-			switch(cmdAndArg[0]) {
+			switch(cmd) {
 			case "FOLL":
 				mapValue = appData.get("FOLL");
 				if(mapValue == MOVE_FOLLOW_OFF)

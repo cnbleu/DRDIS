@@ -9,7 +9,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -33,6 +36,8 @@ import com.hedymed.pieces.addSubView;
 import com.hedymed.uart.uartUtils;
 
 public class mainFragment extends Fragment {
+	public static final String TAG = "mainFragment";
+	public static final String RECEIVER_ACTION = "com.hedymed.drdissys.mainFragment.recvData";
 	private addSubView mHVGVolatge;
 	private addSubView mHVGmA;
 	private addSubView mHVGmAs;
@@ -44,19 +49,16 @@ public class mainFragment extends Fragment {
 	private boolean mHvgArgSelecterInit, mPositionSelecterInit, mAgeSelecterInit, mBodyTypeSelecterInit;
 	private RadioButton mBigFocusButton, mSmallFocusButton;
 	private View rootView;
-	@Override
-	public void onAttach(Activity activity) {
-		super.onAttach(activity);
-	}
+	private mainFragmentReceiver mReceiver;
 	
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		registerMainFragmentReceiver();
 //		setRetainInstance(true);
 	}
 	
 	
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		Log.i("mainFragment", "in onCreateView");
 		if(rootView == null) {
 			rootView = inflater.inflate(R.layout.main_fragment, container, false);
 			mHVGVolatge = (addSubView) rootView.findViewById(R.id.hvg_voltage);
@@ -82,6 +84,7 @@ public class mainFragment extends Fragment {
 			setBodyType();//…Ë÷√adapter
 			setFunction();//…Ë÷√ KV°¢MA°¢MAS°¢MS
 			registerEventMonitor();
+			refreshFragment();
 		}
 		
 		return rootView;
@@ -90,14 +93,12 @@ public class mainFragment extends Fragment {
 	@Override
 	public void onResume() {
 		super.onResume();
-		Log.i("mainFragment", "in onResume" + getActivity().toString());
 	}
 	
 	@Override
 	public void onDetach() {
-		// TODO Auto-generated method stub
 		super.onDetach();
-		Log.i("mainFragment", "in onDetach");
+		getActivity().unregisterReceiver(mReceiver);
 	}
 
 	private void setAddSubViewEnable(int mode){
@@ -313,6 +314,28 @@ public class mainFragment extends Fragment {
 		});
 	}
 
+	public void registerMainFragmentReceiver() {
+		IntentFilter filter = new IntentFilter(RECEIVER_ACTION);
+		mReceiver = new mainFragmentReceiver();
+		getActivity().registerReceiver(mReceiver, filter);
+	}
+	
+	public class mainFragmentReceiver extends BroadcastReceiver 
+	{
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			Bundle bundle = intent.getExtras();
+			switch((String)bundle.getCharSequence("action")) {
+			case "refresh":
+				refreshFragment();
+				break;
+			case "uartCMD":
+				MVC_control_handler((String)bundle.getCharSequence("cmd"));
+				break;
+			}
+		}
+	}
+	
 	public void refreshFragment() {
 		try{
 			MainActivity.setSpinnerSelect(mHvgArgSelecter, appData.get("ET"));
@@ -335,13 +358,13 @@ public class mainFragment extends Fragment {
 		}
 	}
 	
-	public void MVC_control_handler(String[] cmdAndArg) {
-		MVC_view_handler(cmdAndArg);
+	public void MVC_control_handler(String cmd) {
+		MVC_view_handler(cmd);
 	}
 	
-	private void MVC_view_handler(String[] cmdAndArg) {
+	private void MVC_view_handler(String cmd) {
 		try {
-			switch(cmdAndArg[0]) {
+			switch(cmd) {
 			case "ET":
 				MainActivity.setSpinnerSelect(mHvgArgSelecter, appData.get("ET"));
 				break;

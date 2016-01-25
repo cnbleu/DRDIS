@@ -1,22 +1,18 @@
 package com.hedymed.fragment;
 
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-
 import android.content.Context;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
+import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
-import android.util.Log;
 
+import com.hedymed.db.AppDataStruct;
 import com.hedymed.drdissys.MainActivity;
 import com.nineoldandroids.view.ViewHelper;
-
+import static com.hedymed.db.AppDataStruct.appData;
 
 public class fragmentViewPager extends ViewPager {
 	private static final float SCALE_MAX = 0.5f;
-	private HashMap<Integer, Fragment> mChildrenViews = new LinkedHashMap<Integer, Fragment>();
 	private Fragment mLeft;
 	private Fragment mRight;
 	private Context mContext;
@@ -31,6 +27,7 @@ public class fragmentViewPager extends ViewPager {
 	public void onPageScrolled(int position, float positionOffset,
 			int positionOffsetPixels)
 	{
+		appData.put("CURR_FRAGMENT", getCurrentItem());
 		//滑动特别小的距离时，我们认为没有动，可有可无的判断
 		float effectOffset = isSmall(positionOffset) ? 0 : positionOffset;
 		
@@ -43,18 +40,17 @@ public class fragmentViewPager extends ViewPager {
 		super.onPageScrolled(position, positionOffset, positionOffsetPixels);
 	}
 	 
-	public void setObjectForPosition(Fragment fragment, int position)
-	{
-		mChildrenViews.put(position, fragment);
-	}
-
-	public int getObjectNum() {
-		return mChildrenViews.size();
-	}
-	
 	public Fragment findViewFromObject(int position)
 	{
-		return mChildrenViews.get(position);
+		MyFragmentPagerAdapter fragmentAdapter;
+		PagerAdapter adapter = getAdapter();
+		
+		if(adapter instanceof MyFragmentPagerAdapter) {
+			fragmentAdapter = (MyFragmentPagerAdapter)adapter;
+			int count = adapter.getCount();
+			return fragmentAdapter.getItem(position >= count ? count - 1 : position);
+		}
+		return null;
 	}
 
 	private boolean isSmall(float positionOffset)

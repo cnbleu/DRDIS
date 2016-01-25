@@ -52,9 +52,8 @@ public class MainActivity extends FragmentActivity implements SharedPreferences.
 	private static final int[] parityFlag = { 'n', 'o', 'e', 'm', 's' };
 	private static final String PACK_UP_METHOD = "onDetachedFromWindow";//Spinner类中protected类型的方法，其作用是使其下拉菜单隐藏。
 	public static final String UI_HANDLER_KEY = "ui_hander_key";
-	enum enumFragment{
-		MAIN_FRA, SECOND_FRA;
-	}
+	private static int[] mBodyPicResourceIDArray;
+	public static SharedPreferences mPreferences;
 	
 	private ImageView mBodyPicture;//体位图
 	private TextView mNameText;//姓名
@@ -77,19 +76,15 @@ public class MainActivity extends FragmentActivity implements SharedPreferences.
 	private TextView mThermalText;
 	private Button mHelpButton;
 	
-	public mainFragment mMainFra;
-	public secondFrament mSecondFra;
-	public thirdFragment mThirdFra;
-	private static int[] mBodyPicResourceIDArray;
-	public MyHandler mUiHandler;
 	private uartUtils mUart;
-	public static SharedPreferences mPreferences;
 	private preferenceInterface.localIPChangelistener mLocalIPChangeListener;
-	public SQLHelper mExposeArgSQLHelper;
-	public DBUtil mExposeArgDB;
 	private SQLHelper mExposeArgHelper;
 	private fragmentViewPager mViewPager;
 	private MyPopupWindow mPopupWindow;
+	
+	public MyHandler mUiHandler;
+	public SQLHelper mExposeArgSQLHelper;
+	public DBUtil mExposeArgDB;
 	
 	public MainActivity() {
 		mUart = new uartUtils(this);
@@ -100,7 +95,6 @@ public class MainActivity extends FragmentActivity implements SharedPreferences.
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		Log.i("mainActivity", "in onCreate");
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.activity_main);
 		
@@ -142,7 +136,11 @@ public class MainActivity extends FragmentActivity implements SharedPreferences.
 		super.onDestroy();
 		mUart.uartClose();
 		mExposeArgHelper.close();
-		Log.i("mainActivity", "in onDestroy");
+	}
+	
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		
 	}
 	
 	@Override
@@ -159,16 +157,12 @@ public class MainActivity extends FragmentActivity implements SharedPreferences.
 		super.onActivityResult(requestCode, resultCode, data);  
 	}
 	
-	
 	private void initFragmentViewPager() {
+		MyFragmentPagerAdapter adapter = new MyFragmentPagerAdapter(getSupportFragmentManager());
 		mViewPager.setPageMargin(20);
-		MyFragmentPagerAdapter adapter = new MyFragmentPagerAdapter(getSupportFragmentManager(), mViewPager);
 		mViewPager.setAdapter(adapter);
-		mMainFra = adapter.getMainFragment();
-		mSecondFra = adapter.getSecondFragment();
-		mThirdFra = adapter.getThirdFragment();
+		mViewPager.setCurrentItem(appData.get("CURR_FRAGMENT"));
 	}
-	
 	
 	public boolean isServiceRunning(String serviceName) {
 		ActivityManager am =  (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
@@ -297,7 +291,12 @@ public class MainActivity extends FragmentActivity implements SharedPreferences.
 		} catch(SQLException e) {
 			Log.i("query database", e.getMessage());
 		}
-		mMainFra.refreshFragment();
+		Intent intent = new Intent();
+		intent.setAction(mainFragment.RECEIVER_ACTION);
+		Bundle bundle = new Bundle();
+		bundle.putString("action", "refresh");
+		intent.putExtras(bundle);
+		sendBroadcast(intent);
 	}
 	
 	
@@ -492,15 +491,25 @@ public class MainActivity extends FragmentActivity implements SharedPreferences.
 				break;
 				
 			default:
-				mMainFra.MVC_control_handler(cmdAndArg);
-				mSecondFra.MVC_control_handler(cmdAndArg);
-				mThirdFra.MVC_control_handler(cmdAndArg);
+				sendUARTCmdBroadcast(mainFragment.RECEIVER_ACTION, cmdAndArg[0]);
+				sendUARTCmdBroadcast(secondFrament.RECEIVER_ACTION, cmdAndArg[0]);
+				sendUARTCmdBroadcast(thirdFragment.RECEIVER_ACTION, cmdAndArg[0]);
 				break;
 			}
 		} catch (NumberFormatException e) {
 			Toast.makeText(MainActivity.this, cmdAndArg[0] + 
 					" cmd argument is " +  cmdAndArg[1] + ". it is error", Toast.LENGTH_LONG).show();
 		}
+	}
+	
+	private void sendUARTCmdBroadcast(String action, String cmd) {
+		Intent intent = new Intent();
+		intent.setAction(action);
+		Bundle bundle = new Bundle();
+		bundle.putString("action", "uartCMD");
+		bundle.putString("cmd", cmd);
+		intent.putExtras(bundle);
+		sendBroadcast(intent);
 	}
 	
 	public static void packUpSpinnerPopup(Spinner mSpinner){

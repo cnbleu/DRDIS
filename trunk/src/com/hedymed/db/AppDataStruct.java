@@ -101,6 +101,7 @@ public class AppDataStruct {
 	//"GRID_RATE"
 	//"GRID_MATERIAL"
 	//"ANG"
+	//"CURR_FRAGMENT"
 
 /* main fragment*/
 	//"ET"
@@ -115,15 +116,20 @@ public class AppDataStruct {
 
 /* second fragment */
 	//"AS"
+	//"ASENABLE"
 	//"TRA"
 	//"FIE"
 	//"DC" Dose ѡ��
 	//"EC"  �عⲹ��
 	//"AEC"
+	//"AECENABLE"
 	//"SOD"
 
 	static {
 		String[] cmdArray = appConfig.UART_SUPPORT_CMD.split(";");
+		appData.put("CURR_FRAGMENT", 0);
+		appData.put("ASENABLE", 1);
+		appData.put("AECENABLE", 1);
 		for(String str : cmdArray)
 			appData.put(str, 0);
 	}

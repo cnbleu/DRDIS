@@ -5,15 +5,17 @@ import static com.hedymed.db.AppDataStruct.ALIGN_MID;
 import static com.hedymed.db.AppDataStruct.ALIGN_TOP;
 import static com.hedymed.db.AppDataStruct.appData;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import android.app.Activity;
-import android.support.v4.app.Fragment;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -26,6 +28,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.SimpleAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -38,7 +41,10 @@ import com.hedymed.drdissys.R;
 import com.hedymed.uart.uartUtils;
 
 public class secondFrament extends Fragment {
+	public static final String TAG = "secondFrament";
+	public static final String RECEIVER_ACTION = "com.hedymed.drdissys.secondFrament.recvData";
 	private RadioButton mTopAlignBtn, mMidAlignBtn, mBotAlignbtn;
+	private RadioGroup mASGroup;
 	private ToggleButton mFieldTraceSelector;
 	private Spinner mLightFieldSelecter;
 	private Spinner mDoseClassSelecter;//Dose 选择
@@ -49,15 +55,13 @@ public class secondFrament extends Fragment {
 	private ToggleButton mAecTopField;
 	private EditText mCustomSOD;
 	private View mRootView;
+	private secondFragmentReceiver mReceiver;
 	
-	@Override
-	public void onAttach(Activity activity) {
-		super.onAttach(activity);
-	}
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		registerMainFragmentReceiver();
 //		setRetainInstance(true);
 	}
 	
@@ -68,12 +72,13 @@ public class secondFrament extends Fragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
+		Log.i("secondFragment", "in onCreateView " + hashCode());
 		if(mRootView == null) {
 			mRootView = inflater.inflate(R.layout.second_frament, container, false);
 			mTopAlignBtn = (RadioButton)mRootView.findViewById(R.id.radio_top_align);
 			mMidAlignBtn = (RadioButton)mRootView.findViewById(R.id.radio_mid_align);
 			mBotAlignbtn = (RadioButton)mRootView.findViewById(R.id.radio_bottom_align);
-			
+			mASGroup = (RadioGroup)mRootView.findViewById(R.id.radioGroup_align);
 			mFieldTraceSelector = (ToggleButton)mRootView.findViewById(R.id.field_trace_button);
 			mLightFieldSelecter = (Spinner)mRootView.findViewById(R.id.light_field_selecter);
 			mDoseClassSelecter = (Spinner)mRootView.findViewById(R.id.dose_selecter);
@@ -91,6 +96,7 @@ public class secondFrament extends Fragment {
 			setDoseComplement();
 			setDoseLevel();
 			registerEventMonitor();
+			refreshFragment();
 		}
 		
 		return mRootView;
@@ -100,6 +106,39 @@ public class secondFrament extends Fragment {
 	public void onResume() {
 		super.onResume();
 	}
+	
+	@Override
+	public void onDetach() {
+		super.onDetach();
+		getActivity().unregisterReceiver(mReceiver);
+	}
+	
+	public void setAlignButton(Boolean bool) {
+		try {
+			mTopAlignBtn.setEnabled(bool);
+			mMidAlignBtn.setEnabled(bool);
+			mBotAlignbtn.setEnabled(bool);
+		} 
+		catch (NullPointerException e) 
+		{
+			Log.i("secondFragment", "catch null in setAlignButton");
+		}
+		
+	}
+	
+	public void setAECToggleButton(Boolean bool) {
+		try {
+			Log.i("secondFragment:setAECToggleButton", "is Added " + isAdded() + " " + hashCode());
+			mAecLeftField.setEnabled(bool);
+			mAecRightField.setEnabled(bool);
+			mAecTopField.setEnabled(bool);
+		}
+		catch (NullPointerException e) 
+		{
+			Log.i("secondFragment", "catch null in setAECToggleButton");
+		}
+	}
+	
 	
 	private void registerEventMonitor(){
 		mLightFieldSelecter.setOnItemSelectedListener(new customSpinnerListener());
@@ -198,28 +237,29 @@ public class secondFrament extends Fragment {
 						uartUtils.sendToSendThread("TRA" + argument);
 					}
 				} else {
-					argument = appData.get("AEC");
-					
-					if(mAecLeftField == button) {
-						if(isChecked)
-							argument |= AppDataStruct.AEC_LEFT_FIELD_MASK;
-						else
-							argument &= ~AppDataStruct.AEC_LEFT_FIELD_MASK;
-					} else if(mAecRightField == button) {
-						if(isChecked)
-							argument |= AppDataStruct.AEC_RIGHT_FIELD_MASK;
-						else
-							argument &= ~AppDataStruct.AEC_RIGHT_FIELD_MASK;
-					} else if(mAecTopField == button) {
-						if(isChecked)
-							argument |= AppDataStruct.AEC_TOP_FIELD_MASK;
-						else
-							argument &= ~AppDataStruct.AEC_TOP_FIELD_MASK;
-					}
-					Log.i("secondFragment", getAECLogMessage(argument)); 
-					if(appData.get("AEC") != argument) {
-						appData.put("AEC", argument);
-						uartUtils.sendToSendThread("AEC" + argument);
+					if(button.isEnabled()) {
+						argument = appData.get("AEC");
+						if(mAecLeftField == button) {
+							if(isChecked)
+								argument |= AppDataStruct.AEC_LEFT_FIELD_MASK;
+							else
+								argument &= ~AppDataStruct.AEC_LEFT_FIELD_MASK;
+						} else if(mAecRightField == button) {
+							if(isChecked)
+								argument |= AppDataStruct.AEC_RIGHT_FIELD_MASK;
+							else
+								argument &= ~AppDataStruct.AEC_RIGHT_FIELD_MASK;
+						} else if(mAecTopField == button) {
+							if(isChecked)
+								argument |= AppDataStruct.AEC_TOP_FIELD_MASK;
+							else
+								argument &= ~AppDataStruct.AEC_TOP_FIELD_MASK;
+						}
+						Log.i("secondFragment", getAECLogMessage(argument)); 
+						if(appData.get("AEC") != argument) {
+							appData.put("AEC", argument);
+							uartUtils.sendToSendThread("AEC" + argument);
+						}
 					}
 				}
 			}
@@ -293,18 +333,48 @@ public class secondFrament extends Fragment {
 		}
 	}
 	
+	public void registerMainFragmentReceiver() {
+		IntentFilter filter = new IntentFilter(RECEIVER_ACTION);
+		mReceiver = new secondFragmentReceiver();
+		getActivity().registerReceiver(mReceiver, filter);
+	}
+	
+	public class secondFragmentReceiver extends BroadcastReceiver 
+	{
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			Bundle bundle = intent.getExtras();
+			switch((String)bundle.getCharSequence("action")) {
+			case "refresh":
+				refreshFragment();
+				break;
+			case "uartCMD":
+				MVC_control_handler((String)bundle.getCharSequence("cmd"));
+				break;
+			}
+		}
+	}
+	
 	//for initialize when parse configure xml.
 	public void refreshFragment() {
 		try {
 			int tempValue;
 			//上中下对齐
-			tempValue = appData.get("AS");
-			if(AppDataStruct.ALIGN_TOP == tempValue)
-				mTopAlignBtn.setChecked(true);
-			else if(AppDataStruct.ALIGN_MID == tempValue)
-				mMidAlignBtn.setChecked(true);
-			else if(AppDataStruct.ALIGN_BOT == tempValue)
-				mBotAlignbtn.setChecked(true);
+			Boolean bool = appData.get("ASENABLE") == 1 ? true : false;
+			mTopAlignBtn.setEnabled(bool);
+			mMidAlignBtn.setEnabled(bool);
+			mBotAlignbtn.setEnabled(bool);
+			if(!bool) {
+				mASGroup.clearCheck();
+			} else {
+				tempValue = appData.get("AS");
+				if(AppDataStruct.ALIGN_TOP == tempValue)
+					mTopAlignBtn.setChecked(true);
+				else if(AppDataStruct.ALIGN_MID == tempValue)
+					mMidAlignBtn.setChecked(true);
+				else if(AppDataStruct.ALIGN_BOT == tempValue)
+					mBotAlignbtn.setChecked(true);
+			}
 			
 			tempValue = appData.get("TRA");
 			if(AppDataStruct.FIELD_TRACE_OFF == tempValue)
@@ -318,37 +388,46 @@ public class secondFrament extends Fragment {
 			
 			mCustomSOD.setText(String.valueOf(appData.get("SOD")));
 			
-			tempValue = appData.get("AEC");
-			//AEC 选择
-			if(0 != (tempValue & AppDataStruct.AEC_LEFT_FIELD_MASK))
-				mAecLeftField.setChecked(true);
-			else
+			bool = appData.get("AECENABLE") == 1 ? true : false;
+			mAecLeftField.setEnabled(bool);
+			mAecRightField.setEnabled(bool);
+			mAecTopField.setEnabled(bool);
+			if(!bool) {
 				mAecLeftField.setChecked(false);
-			
-			if(0 != (tempValue & AppDataStruct.AEC_RIGHT_FIELD_MASK))
-				mAecRightField.setChecked(true);
-			else
 				mAecRightField.setChecked(false);
-			
-			if(0 != (tempValue & AppDataStruct.AEC_TOP_FIELD_MASK))
-				mAecTopField.setChecked(true);
-			else
 				mAecTopField.setChecked(false);
+			} else {
+				tempValue = appData.get("AEC");
+				//AEC 选择
+				if(0 != (tempValue & AppDataStruct.AEC_LEFT_FIELD_MASK))
+					mAecLeftField.setChecked(true);
+				else
+					mAecLeftField.setChecked(false);
+				
+				if(0 != (tempValue & AppDataStruct.AEC_RIGHT_FIELD_MASK))
+					mAecRightField.setChecked(true);
+				else
+					mAecRightField.setChecked(false);
+				
+				if(0 != (tempValue & AppDataStruct.AEC_TOP_FIELD_MASK))
+					mAecTopField.setChecked(true);
+				else
+					mAecTopField.setChecked(false);
+			}
 		}
 		catch(NullPointerException e) {
 			Log.i("secondFragment:refreshFragment", "first refresh secondFragment will cause nullException");
 		}
 	}
 	
-	public void MVC_control_handler(String[] cmdAndArg) {
-//		if(isVisible())
-			MVC_view_handler(cmdAndArg);
+	public void MVC_control_handler(String cmd) {
+		MVC_view_handler(cmd);
 	}
 	
-	private void MVC_view_handler(String[] cmdAndArg) {
+	private void MVC_view_handler(String cmd) {
 		try{
 			int mapValue;
-			switch(cmdAndArg[0]) {
+			switch(cmd) {
 			case "AS":
 				mapValue = appData.get("AS");
 				if(AppDataStruct.ALIGN_TOP == mapValue)
