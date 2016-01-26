@@ -1,15 +1,14 @@
 package com.hedymed.fragment;
 
+import static com.hedymed.db.AppDataStruct.appData;
 import android.content.Context;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
 
-import com.hedymed.db.AppDataStruct;
 import com.hedymed.drdissys.MainActivity;
 import com.nineoldandroids.view.ViewHelper;
-import static com.hedymed.db.AppDataStruct.appData;
 
 public class fragmentViewPager extends ViewPager {
 	private static final float SCALE_MAX = 0.5f;
@@ -82,4 +81,6 @@ public class fragmentViewPager extends ViewPager {
 			left.getView().bringToFront();
 		}
 	}
+	
+	
 }

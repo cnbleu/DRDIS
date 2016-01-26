@@ -214,7 +214,6 @@ public class MainActivity extends FragmentActivity implements SharedPreferences.
 		return true;
 	}
 		
-	
 	public void setPageDot(int position) {
 		if(position == 0)
 			mPageSwitchPic.setImageResource(R.drawable.page_1);

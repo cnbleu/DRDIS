@@ -1,0 +1,25 @@
+# view AndroidManifest.xml #generated:23
+-keep class com.hedymed.drdissys.MainActivity { <init>(...); }
+
+# view AndroidManifest.xml #generated:42
+-keep class com.hedymed.drdissys.autoStart { <init>(...); }
+
+# view AndroidManifest.xml #generated:34
+-keep class com.hedymed.drdissys.disPictureActivity { <init>(...); }
+
+# view AndroidManifest.xml #generated:38
+-keep class com.hedymed.engineer.EngineerActivity { <init>(...); }
+
+# view land\res/layout-land/activity_main.xml #generated:80
+# view port\res/layout-port/activity_main.xml #generated:81
+-keep class com.hedymed.fragment.fragmentViewPager { <init>(...); }
+
+# view AndroidManifest.xml #generated:48
+-keep class com.hedymed.log.log { <init>(...); }
+
+# view res/layout/main_fragment.xml #generated:102
+# view res/layout/main_fragment.xml #generated:108
+# view res/layout/main_fragment.xml #generated:90
+# view res/layout/main_fragment.xml #generated:96
+-keep class com.hedymed.pieces.addSubView { <init>(...); }
+

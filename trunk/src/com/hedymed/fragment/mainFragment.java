@@ -337,25 +337,20 @@ public class mainFragment extends Fragment {
 	}
 	
 	public void refreshFragment() {
-		try{
-			MainActivity.setSpinnerSelect(mHvgArgSelecter, appData.get("ET"));
-			MainActivity.setSpinnerSelect(mPositionSelecter, appData.get("POS"));
-			MainActivity.setSpinnerSelect(mAgeSelecter, appData.get("AG"));
-			MainActivity.setSpinnerSelect(mBodyTypeSelecter, appData.get("BOD"));
-			
-			mHVGVolatge.setValue(appData.get("KV"));
-			mHVGmA.setValue(appData.get("MA") / 10);
-			mHVGmAs.setValue(appData.get("MAS") / 10.0);
-			mHVGms.setValue(appData.get("MS") / 10);
-	
-			if (AppDataStruct.FOCUS_BIG == appData.get("FOC"))
-				mBigFocusButton.setChecked(true);
-			else if (AppDataStruct.FOCUS_SMALL == appData.get("FOC"))
-				mSmallFocusButton.setChecked(true);
-		}
-		catch(NullPointerException e) {
-			Log.i("mainFragment:refreshFragment", "first refresh mainFragment will cause nullException");
-		}
+		MainActivity.setSpinnerSelect(mHvgArgSelecter, appData.get("ET"));
+		MainActivity.setSpinnerSelect(mPositionSelecter, appData.get("POS"));
+		MainActivity.setSpinnerSelect(mAgeSelecter, appData.get("AG"));
+		MainActivity.setSpinnerSelect(mBodyTypeSelecter, appData.get("BOD"));
+		
+		mHVGVolatge.setValue(appData.get("KV"));
+		mHVGmA.setValue(appData.get("MA") / 10);
+		mHVGmAs.setValue(appData.get("MAS") / 10.0);
+		mHVGms.setValue(appData.get("MS") / 10);
+
+		if (AppDataStruct.FOCUS_BIG == appData.get("FOC"))
+			mBigFocusButton.setChecked(true);
+		else if (AppDataStruct.FOCUS_SMALL == appData.get("FOC"))
+			mSmallFocusButton.setChecked(true);
 	}
 	
 	public void MVC_control_handler(String cmd) {

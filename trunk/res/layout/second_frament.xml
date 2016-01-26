@@ -150,7 +150,7 @@
             android:textSize="@dimen/id_dis_size"
             android:gravity="center_horizontal"
             android:paddingTop="28dp"
-            android:cursorVisible="false">
+            android:selectAllOnFocus="true">
         </EditText>
     </LinearLayout>
 

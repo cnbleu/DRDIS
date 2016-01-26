@@ -19,9 +19,9 @@ import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.CompoundButton;
 import android.widget.EditText;
@@ -72,7 +72,6 @@ public class secondFrament extends Fragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		Log.i("secondFragment", "in onCreateView " + hashCode());
 		if(mRootView == null) {
 			mRootView = inflater.inflate(R.layout.second_frament, container, false);
 			mTopAlignBtn = (RadioButton)mRootView.findViewById(R.id.radio_top_align);
@@ -113,33 +112,6 @@ public class secondFrament extends Fragment {
 		getActivity().unregisterReceiver(mReceiver);
 	}
 	
-	public void setAlignButton(Boolean bool) {
-		try {
-			mTopAlignBtn.setEnabled(bool);
-			mMidAlignBtn.setEnabled(bool);
-			mBotAlignbtn.setEnabled(bool);
-		} 
-		catch (NullPointerException e) 
-		{
-			Log.i("secondFragment", "catch null in setAlignButton");
-		}
-		
-	}
-	
-	public void setAECToggleButton(Boolean bool) {
-		try {
-			Log.i("secondFragment:setAECToggleButton", "is Added " + isAdded() + " " + hashCode());
-			mAecLeftField.setEnabled(bool);
-			mAecRightField.setEnabled(bool);
-			mAecTopField.setEnabled(bool);
-		}
-		catch (NullPointerException e) 
-		{
-			Log.i("secondFragment", "catch null in setAECToggleButton");
-		}
-	}
-	
-	
 	private void registerEventMonitor(){
 		mLightFieldSelecter.setOnItemSelectedListener(new customSpinnerListener());
 		mDoseClassSelecter.setOnItemSelectedListener(new customSpinnerListener());
@@ -152,38 +124,33 @@ public class secondFrament extends Fragment {
 		mAecLeftField.setOnCheckedChangeListener(new customToggleButtonListener());
 		mAecRightField.setOnCheckedChangeListener(new customToggleButtonListener());
 		mAecTopField.setOnCheckedChangeListener(new customToggleButtonListener());
+		mCustomSOD.setHorizontallyScrolling(false);
 		mCustomSOD.setOnEditorActionListener(new TextView.OnEditorActionListener() {
 			@Override
 			public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
 				try{
-					Log.i("wangbo", "onEditor");
-					int argument = 0;
 					int value = Integer.parseInt(v.getText().toString());
 					if((value <= 180) && (value >= 0 )) {
-						argument = value;
+						int argument = value;
 						Log.i("secondFragment", String.format("SOD Set to %d", argument));
 						if(appData.get("SOD") != argument) {
 							appData.put("SOD", argument);
 							uartUtils.sendToSendThread("SOD" + argument);
 						}
 					} else
-						Toast.makeText(getActivity(), "value error", Toast.LENGTH_SHORT).show();
+						Toast.makeText(getActivity(), "value must be 0 -- 180", Toast.LENGTH_SHORT).show();
 				}
 				catch (NumberFormatException e){
 					return false;
 				}
-				
+				v.clearFocus();
+				// hide virtual keyboard
+				InputMethodManager imm = (InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+				imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
 				return false;
 			}
 		});
 		
-		mCustomSOD.setOnTouchListener(new View.OnTouchListener() {
-			@Override
-			public boolean onTouch(View v, MotionEvent event) {
-				Log.i("wangbo", "onTouch");
-				return false;
-			}
-		});
 	}
 	
 	class customRaidoButtonListener implements CompoundButton.OnCheckedChangeListener {
@@ -357,66 +324,61 @@ public class secondFrament extends Fragment {
 	
 	//for initialize when parse configure xml.
 	public void refreshFragment() {
-		try {
-			int tempValue;
-			//上中下对齐
-			Boolean bool = appData.get("ASENABLE") == 1 ? true : false;
-			mTopAlignBtn.setEnabled(bool);
-			mMidAlignBtn.setEnabled(bool);
-			mBotAlignbtn.setEnabled(bool);
-			if(!bool) {
-				mASGroup.clearCheck();
-			} else {
-				tempValue = appData.get("AS");
-				if(AppDataStruct.ALIGN_TOP == tempValue)
-					mTopAlignBtn.setChecked(true);
-				else if(AppDataStruct.ALIGN_MID == tempValue)
-					mMidAlignBtn.setChecked(true);
-				else if(AppDataStruct.ALIGN_BOT == tempValue)
-					mBotAlignbtn.setChecked(true);
-			}
-			
-			tempValue = appData.get("TRA");
-			if(AppDataStruct.FIELD_TRACE_OFF == tempValue)
-				mFieldTraceSelector.setChecked(false);
-			else if(AppDataStruct.FIELD_TRACE_ON == tempValue)
-				mFieldTraceSelector.setChecked(true);
-			
-			MainActivity.setSpinnerSelect(mLightFieldSelecter, appData.get("FIE"));
-			MainActivity.setSpinnerSelect(mDoseClassSelecter, appData.get("DC"));
-			MainActivity.setSpinnerSelect(mCompenClassSelecter, appData.get("EC"));
-			
-			mCustomSOD.setText(String.valueOf(appData.get("SOD")));
-			
-			bool = appData.get("AECENABLE") == 1 ? true : false;
-			mAecLeftField.setEnabled(bool);
-			mAecRightField.setEnabled(bool);
-			mAecTopField.setEnabled(bool);
-			if(!bool) {
-				mAecLeftField.setChecked(false);
-				mAecRightField.setChecked(false);
-				mAecTopField.setChecked(false);
-			} else {
-				tempValue = appData.get("AEC");
-				//AEC 选择
-				if(0 != (tempValue & AppDataStruct.AEC_LEFT_FIELD_MASK))
-					mAecLeftField.setChecked(true);
-				else
-					mAecLeftField.setChecked(false);
-				
-				if(0 != (tempValue & AppDataStruct.AEC_RIGHT_FIELD_MASK))
-					mAecRightField.setChecked(true);
-				else
-					mAecRightField.setChecked(false);
-				
-				if(0 != (tempValue & AppDataStruct.AEC_TOP_FIELD_MASK))
-					mAecTopField.setChecked(true);
-				else
-					mAecTopField.setChecked(false);
-			}
+		int tempValue;
+		//上中下对齐
+		Boolean bool = appData.get("ASENABLE") == 1 ? true : false;
+		mTopAlignBtn.setEnabled(bool);
+		mMidAlignBtn.setEnabled(bool);
+		mBotAlignbtn.setEnabled(bool);
+		if(!bool) {
+			mASGroup.clearCheck();
+		} else {
+			tempValue = appData.get("AS");
+			if(AppDataStruct.ALIGN_TOP == tempValue)
+				mTopAlignBtn.setChecked(true);
+			else if(AppDataStruct.ALIGN_MID == tempValue)
+				mMidAlignBtn.setChecked(true);
+			else if(AppDataStruct.ALIGN_BOT == tempValue)
+				mBotAlignbtn.setChecked(true);
 		}
-		catch(NullPointerException e) {
-			Log.i("secondFragment:refreshFragment", "first refresh secondFragment will cause nullException");
+		
+		tempValue = appData.get("TRA");
+		if(AppDataStruct.FIELD_TRACE_OFF == tempValue)
+			mFieldTraceSelector.setChecked(false);
+		else if(AppDataStruct.FIELD_TRACE_ON == tempValue)
+			mFieldTraceSelector.setChecked(true);
+		
+		MainActivity.setSpinnerSelect(mLightFieldSelecter, appData.get("FIE"));
+		MainActivity.setSpinnerSelect(mDoseClassSelecter, appData.get("DC"));
+		MainActivity.setSpinnerSelect(mCompenClassSelecter, appData.get("EC"));
+		
+		mCustomSOD.setText(String.valueOf(appData.get("SOD")));
+		
+		bool = appData.get("AECENABLE") == 1 ? true : false;
+		mAecLeftField.setEnabled(bool);
+		mAecRightField.setEnabled(bool);
+		mAecTopField.setEnabled(bool);
+		if(!bool) {
+			mAecLeftField.setChecked(false);
+			mAecRightField.setChecked(false);
+			mAecTopField.setChecked(false);
+		} else {
+			tempValue = appData.get("AEC");
+			//AEC 选择
+			if(0 != (tempValue & AppDataStruct.AEC_LEFT_FIELD_MASK))
+				mAecLeftField.setChecked(true);
+			else
+				mAecLeftField.setChecked(false);
+			
+			if(0 != (tempValue & AppDataStruct.AEC_RIGHT_FIELD_MASK))
+				mAecRightField.setChecked(true);
+			else
+				mAecRightField.setChecked(false);
+			
+			if(0 != (tempValue & AppDataStruct.AEC_TOP_FIELD_MASK))
+				mAecTopField.setChecked(true);
+			else
+				mAecTopField.setChecked(false);
 		}
 	}
 	
